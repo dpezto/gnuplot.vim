@@ -1,5 +1,5 @@
 # Gnuplot syntax highlighting for Vim
-I built this package from the ground up as a follow up of the work made by [James Eberle](https://www.vim.org/scripts/script.php?script_id=1737) and [Andrew Rasmussen](https://www.vim.org/scripts/script.php?script_id=4873).
+I built this package from the ground up as a follow up to the work made by [James Eberle](https://www.vim.org/scripts/script.php?script_id=1737) and [Andrew Rasmussen](https://www.vim.org/scripts/script.php?script_id=4873).
 
 ## Notice
 The aim of this package is to provide up-to-date support for gnuplot syntax. I'm basing the support for gnuplot 5.5 which is currently in development.
