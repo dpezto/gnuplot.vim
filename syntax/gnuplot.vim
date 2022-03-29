@@ -53,7 +53,7 @@ syn match   pltOpt "\v(p(lot)? .*\s|(\\\n)+.*\s)@<=(binary|<i(ndex)?>|every|skip
 syn match   pltOpt "\v(p(lot)? .*\s|(\\\n)+.*\s)@<=(<w(ith)?>|smooth|bins|mask|convexhull|zsort)"
 syn match   pltOpt "\v(p(lot)? .*\s|(\\\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
 hi def link pltOpt Keyword
-" Smooth p. 127
+" Smooth
 syn match   smtOpt "\v(smooth )@<=(unique|frequency|fnormal|cumulative|cnormal)"
 syn match   smtOpt "\v(smooth )@<=(csplines|acsplines|mcsplines|path|bezier)"
 syn match   smtOpt "\v(smooth )@<=(sbezier|kdensity|convexhull|unwrap)"
@@ -70,7 +70,7 @@ syn match   withOpt "\v(<w(ith)?> )@<=(ellipses|filledcurves|fillsteps|histogram
 syn match   withOpt "\v(<w(ith)?> )@<=(image|pm3d|rgbalpha|rgbimage|polygons)"
 hi def link withOpt Identifier
 " subattributes
-syn match   swithOpt "\v((p(lot)? .*(\\\n)?).*)@<=(<ls>|<lt>|<lw>|<lc>|<pt>|<ps>)"
+syn match   swithOpt "\v((p(lot)? .*\s|(\\\n)+.*\s))@<=(<ls>|<lt>|<lw>|<lc>|<pt>|<ps>)"
 hi def link swithOpt Constant
 " Title
 syn match   titOps "\v(<(no)?t(it)?(le)? )@<=(<columnheader|<at>|<(no)?enhanced)"
