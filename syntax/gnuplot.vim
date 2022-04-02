@@ -41,7 +41,7 @@ syn match   gnuVar "\v\w+(_sumxy|_pos(_min|_max)_y)@=(\1)"
 syn match   gnuVar "\v\w+(_size(_x|_y))@=(\1)"
 " Mouse
 syn match   gnuVar "\v(MOUSE_)(\1)@<=(\w+>)"
-hi def link gnuVar Identifier
+hi def link gnuVar Constant
 
 " Fit -------------------------------------------------------------------------
 syn match   fitOpt "\v(fit .*)@<=(<i(ndex)?>|every|skip|<u(sing)?>|(x|y|xy|x)error)"
