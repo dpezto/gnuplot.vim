@@ -12,9 +12,9 @@ This plugin follows the standard runtime path structure, and as such it can be i
 | Plugin Manager | Install with... |
 | ------------- | ------------- |
 | [Pathogen][1] | `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/bundle/gnuplot`<br/>Remember to run `:Helptags` to generate help tags |
-| [Vundle][3] | `Plugin 'dpezto/gnuplot.vim'` |
-| [Plug][5] | `Plug 'dpezto/gnuplot.vim'` |
-| [minpac][7] | `call minpac#add('dpezto/gnuplot.vim')` |
+| [Vundle][2] | `Plugin 'dpezto/gnuplot.vim'` |
+| [Plug][3] | `Plug 'dpezto/gnuplot.vim'` |
+| [minpac][4] | `call minpac#add('dpezto/gnuplot.vim')` |
 | pack feature (native Vim 8 package feature)| `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/pack/plugins/start/gnuplot`<br/>Remember to run `:helptags` to generate help tags |
 
 ### Manual installation
@@ -73,3 +73,7 @@ You save this file as "filetype.vim" in your user runtime diretory:
 
 ## Status
 This began as a personal project since I prefer the results of the plots made with gnuplot, so most of the syntax currently in the file is for my use case. Despite this, the package can handle almost all use cases of gnuplot. I'm looking forward to refine the syntax highlighting. PRs are welcome!
+[1]: https://github.com/tpope/vim-pathogen
+[2]: https://github.com/VundleVim/Vundle.vim
+[3]: https://github.com/junegunn/vim-plug
+[4]: https://github.com/k-takata/minpac/
