@@ -5,6 +5,38 @@ I built this package from the ground up as a follow up to the work made by [Jame
 The aim of this package is to provide up-to-date support for gnuplot syntax. I'm basing the support for gnuplot 5.5 which is currently in development.
 
 ## Installation
+
+### Using a plugin manager
+This plugin follows the standard runtime path structure, and as such it can be installed with a variety of plugin managers:
+
+| Plugin Manager | Install with... |
+| ------------- | ------------- |
+| [Pathogen][1] | `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/bundle/gnuplot`<br/>Remember to run `:Helptags` to generate help tags |
+| [Vundle][3] | `Plugin 'dpezto/gnuplot.vim'` |
+| [Plug][5] | `Plug 'dpezto/gnuplot.vim'` |
+| [minpac][7] | `call minpac#add('dpezto/gnuplot.vim')` |
+| pack feature (native Vim 8 package feature)| `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/pack/plugins/start/gnuplot`<br/>Remember to run `:helptags` to generate help tags |
+
+### Manual installation
+In order to have vim automatically detect csv files, you need to have
+[`ftplugins`](http://vimhelp.appspot.com/usr_05.txt.html#ftplugins) enabled (e.g. by having this line in your [[`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc)](http://vimhelp.appspot.com/starting.txt.html#.vimrc) file:
+
+```vim
+:filetype plugin on
+```
+
+The plugin already sets up some logic to detect CSV files. In order that the
+CSV filetype plugin is loaded correctly, vim needs to be enabled to load
+[`filetype-plugins`](http://vimhelp.appspot.com/filetype.txt.html#filetype-plugins). This can be ensured by putting a line like this in your
+[`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc):
+
+```vim
+:filetype plugin on
+```
+(see also [:filetype-plugin-on](http://vimhelp.appspot.com/filetype.txt.html#:filetype-plugin-on)).
+
+In case this did not work, you need to setup vim like this:
+
 To have Vim automatically detect gnuplot files, you need to do the following.
 
 1. Create your user runtime directory if you do not have one yet. This
