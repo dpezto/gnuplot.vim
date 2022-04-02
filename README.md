@@ -19,7 +19,7 @@ This plugin follows the standard runtime path structure, and as such it can be i
 
 ### Manual installation
 In order to have vim automatically detect csv files, you need to have
-[`ftplugins`](http://vimhelp.appspot.com/usr_05.txt.html#ftplugins) enabled (e.g. by having this line in your [[`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc)](http://vimhelp.appspot.com/starting.txt.html#.vimrc) file:
+[`ftplugins`](http://vimhelp.appspot.com/usr_05.txt.html#ftplugins) enabled (e.g. by having this line in your [`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc) file:
 
 ```vim
 :filetype plugin on
@@ -73,6 +73,7 @@ You save this file as "filetype.vim" in your user runtime diretory:
 
 ## Status
 This began as a personal project since I prefer the results of the plots made with gnuplot, so most of the syntax currently in the file is for my use case. Despite this, the package can handle almost all use cases of gnuplot. I'm looking forward to refine the syntax highlighting. PRs are welcome!
+
 [1]: https://github.com/tpope/vim-pathogen
 [2]: https://github.com/VundleVim/Vundle.vim
 [3]: https://github.com/junegunn/vim-plug
