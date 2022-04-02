@@ -336,7 +336,7 @@ syn match   gnuOp "="
 syn match   gnuOp "\v<eq>"
 syn match   gnuOp "\v<ne>"
 " Ternary Operators
-syn match   gnuOp "\v(\p+\?\p+)@<=:(\p+)@=" " :
+syn match   gnuOp "\v(\p+\?[^:]+)@<=:(\p+)@=" " :
 syn match   gnuOp "\v(\p+)@<=\?(\p+:\p+)@=" " ?
 hi def link gnuOp Operator
 
