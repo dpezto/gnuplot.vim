@@ -400,6 +400,9 @@ syn match   cairoOpt "\v(cairolatex .*)@<=(background|font|fontscale|linewidth|l
 syn match   cairoOpt "\v(cairolatex .*)@<=(rounded|butt|square|dashlenght|dl|size)"
 hi def link cairoOpt Constant
 " Pdfcairo
+syn match   pdfcaOpt "\v(pdfcairo .*)@<=((no)?enhanced|mono|color|font(scale)?)"
+syn match   pdfcaOpt "\v(pdfcairo .*)@<=(linewidth|<lw>|rounded|butt|square|dashlength)"
+syn match   pdfcaOpt "\v(pdfcairo .*)@<=(<dl>|background|size)"
 " Png
 " Pngcairo
 " Qt
