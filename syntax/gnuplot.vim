@@ -1,5 +1,5 @@
 " Vim syntax file
-" Language:    Gnuplot 5.5 
+" Language:    Gnuplot 5.5
 " Creator:     Dai López-Jacinto <dpezto@gmail.com>
 " Last Change: Mar 28, 2022
 " Filenames:   *.plt *.gpi *.gih *.gp *.gnuplot *.gnu
