@@ -413,7 +413,11 @@ hi def link pdfcaOpt Constant
 " Wxt
 
 " Comment ---------------------------------------------------------------------
-syn region  plotComment start="#" skip="\\" end="\n"
+syn region  plotComment start="#" skip="\\" end="\n" contains=plotTodo
 hi def link plotComment Comment
+
+" Todo ------------------------------------------------------------------------
+syn keyword plotTodo contained TODO FIXME XXX
+hi def link plotTodo Todo
 
 let b:current_syntax = "gnuplot"
