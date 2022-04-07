@@ -1,9 +1,9 @@
 " Vim syntax file
-" Language:    Gnuplot 5.5
-" Creator:     Dai López-Jacinto <dpezto@gmail.com>
-" Last Change: Mar 28, 2022
-" Filenames:   *.plt *.gpi *.gih *.gp *.gnuplot *.gnu
-" URL:         http://www.github/dpezto/syntax/
+" Language:     Gnuplot 5.5
+" Creator:      Dai López-Jacinto <dpezto@gmail.com>
+" Last Change:  Mar 28, 2022
+" Filenames:    *.plt *.gpi *.gih *.gp *.gnuplot *.gnu
+" URL:          http://www.github/dpezto/syntax/
 
 " Use :syn w/in a buffer to see language element breakdown
 
@@ -49,9 +49,9 @@ syn match   fitOpt "\v(fit .*)@<=(errors|via)"
 hi def link fitOpt Keyword
 
 " Plot ------------------------------------------------------------------------
-syn match   pltOpt "\v(p(lot)? .*\s|(\\\n)+.*\s)@<=(binary|<i(ndex)?>|every|skip|<u(sing)?>)"
-syn match   pltOpt "\v(p(lot)? .*\s|(\\\n)+.*\s)@<=(<w(ith)?>|smooth|bins|mask|convexhull|zsort)"
-syn match   pltOpt "\v(p(lot)? .*\s|(\\\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
+syn match   pltOpt "\v(p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(binary|<i(ndex)?>|every|skip|<u(sing)?>)"
+syn match   pltOpt "\v(p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(<w(ith)?>|smooth|bins|mask|convexhull|zsort)"
+syn match   pltOpt "\v(p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
 hi def link pltOpt Keyword
 " Smooth
 syn match   smtOpt "\v(smooth )@<=(unique|frequency|fnormal|cumulative|cnormal)"
@@ -70,7 +70,7 @@ syn match   withOpt "\v(<w(ith)?> )@<=(ellipses|filledcurves|fillsteps|histogram
 syn match   withOpt "\v(<w(ith)?> )@<=(image|pm3d|rgbalpha|rgbimage|polygons)"
 hi def link withOpt Identifier
 " subattributes
-syn match   swithOpt "\v((p(lot)? .*\s|(\\\n)+.*\s))@<=(<ls>|<lt>|<lw>|<lc>|<pt>|<ps>)"
+syn match   swithOpt "\v((p(lot)? .*\s|(\\\s*\n)+.*\s))@<=(<ls>|<lt>|<lw>|<lc>|<pt>|<ps>)"
 hi def link swithOpt Constant
 " Title
 syn match   titOps "\v(<(no)?t(it)?(le)? )@<=(<columnheader|<at>|<(no)?enhanced)"
@@ -146,6 +146,7 @@ hi def link setOpt Structure
 syn match   sarroOpt "\v(arrow .*)@<=(from|to|arrowstyle|<as>|(no|back)?head(s)?)"
 syn match   sarroOpt "\v(arrow .*)@<=(size|fixed|(no)?filled|empty|noborder)"
 syn match   sarroOpt "\v(arrow .*)@<=(front|back|<ls>|<lt>|<lw>|<lc>|<dt>)"
+syn match   sarroOpt "\v(arrow .*)@<=(first|second|graph|screen|character)"
 hi def link sarroOpt Identifier
 " Set-border ------------------------------------------------------------------
 syn match   sbordOpt "\v(border .*)@<=(front|back|behind|linestyle|<ls>|linetype|<lt>)"
@@ -191,7 +192,7 @@ syn match   sskeyOpt "\v((title) )@<=((no)?enhanced|<c(enter)?>|<l(eft)?>|<r(igh
 hi def link sskeyOpt Constant
 " Set-label -------------------------------------------------------------------
 syn match   slabOpt "\v(lab(el)? .*)@<=(<at>|<l(eft)?>|<c(enter)?>|<r(ight)?>)"
-syn match   slabOpt "\v(lab(el)? .*)@<=(<(no)?rot(ate)?>|font|<(no)?enhanded>)"
+syn match   slabOpt "\v(lab(el)? .*)@<=(<(no)?rot(ate)?>|by|font|<(no)?enhanded>)"
 syn match   slabOpt "\v(lab(el)? .*)@<=(front|back|textcolor|<tc>|<(no)?point>)"
 syn match   slabOpt "\v(lab(el)? .*)@<=(offset|nobox|boxed|hypertext)"
 hi def link slabOpt Identifier
@@ -318,10 +319,10 @@ hi def link plotDef Define
 
 " Operators -------------------------------------------------------------------
 " Unary Operators
-syn match   gnuOp "[-+~!$]"
+syn match   gnuOp "[-+~!|$]"
 " Binary Operators
 syn match   gnuOp "\*\*"
-syn match   gnuOp "[*/%&^|.,]"
+syn match   gnuOp "[*/%&^.]"
 syn match   gnuOp "=="
 syn match   gnuOp "!="
 syn match   gnuOp "<"
@@ -333,11 +334,12 @@ syn match   gnuOp ">>"
 syn match   gnuOp "&&"
 syn match   gnuOp "||"
 syn match   gnuOp "="
+syn match   gnuOp "\v(\(.*)@<=,(.*\))@="
 syn match   gnuOp "\v<eq>"
 syn match   gnuOp "\v<ne>"
 " Ternary Operators
-syn match   gnuOp "\v(\p+\?[^:]+)@<=:(\p+)@=" " :
 syn match   gnuOp "\v(\p+)@<=\?(\p+:\p+)@=" " ?
+syn match   gnuOp "\v(\p+\?[^:]+)@<=:(\p+)@=" " :
 hi def link gnuOp Operator
 
 " Functions -------------------------------------------------------------------
