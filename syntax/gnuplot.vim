@@ -465,9 +465,15 @@ syn match   pdfcaOpt "\v(pdfcairo .*)@<=(linewidth|<lw>|rounded|butt|square|dash
 syn match   pdfcaOpt "\v(pdfcairo .*)@<=(<dl>|background|size)"
 hi def link pdfcaOpt Constant
 " Png
-syn match   pngOpt
+syn match   pngOpt "\v(png .*)@<=((no)?enhanced|(no)?transparent|(no)?interlace)"
+syn match   pngOpt "\n(png .*)@<=((no)?truecolor|rounded|butt|linewidth|<lw>|dashlenght|<dl>)"
+syn match   pngOpt "\v(png .*)@<=(tiny|small|medium|large|giant|font|fontscale|size|(no)?crop|background)"
 hi def link pngOpt Constant
 " Pngcairo
+syn match   pngcaOpt "\v(pngcairo .*)@<=((no)?enhanced|mono|color|(no)?transparent)"
+syn match   pngcaOpt "\v(pngcairo .*)@<=((no)?crop|background|font|fontscale|linewidth|<lw>)"
+syn match   pngcaOpt "\v(pngcairo .*)@<=(rounded|butt|square|dashlength|<dl>|pointscale|<ps>|size)"
+hi def link pngcaOpt Constant
 " Qt
 " Svg
 " Texdraw
