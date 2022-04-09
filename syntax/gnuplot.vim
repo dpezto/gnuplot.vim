@@ -13,13 +13,14 @@ elseif exists("b:current_syntax")
   finish
 endif
 
-" Number ----------------------------------------------------------------------
+" Number -------------------------------------------------------------------{{{
 syn keyword gnuNumber pi NaN I
 syn match   gnuNumber "\v<\d*((\.\d+)?((e|E)(-|\+)?\d+)?)?"
 syn match   gnuNumber "\v(<\d*((\.\d+)?((e|E)(-|\+)?\d+)?)?)@<=(cm|in|pt)"
 hi def link gnuNumber Number
+" }}}
 
-" Commands --------------------------------------------------------------------
+" Commands ------------------------------------------------------------------{{{
 syn keyword gnuCmd array break cd call clear continue do
 syn keyword gnuCmd exit fit help history if else for import
 syn keyword gnuCmd load lower pause print pwd quit raise refresh reread
@@ -27,8 +28,9 @@ syn keyword gnuCmd reset save set shell show stats sum system
 syn keyword gnuCmd test toggle undefine unset update vclear vfill while
 syn match   gnuCmd "\v(<eval(uate)?>|<rep(lot)?>|<s?p(lot)?>)"
 hi def link gnuCmd Statement
+" }}}
 
-" Gnuplot-defined variables ---------------------------------------------------
+" Gnuplot-defined variables ------------------------------------------------{{{
 syn match   gnuVar "\v(GPVAL_)(\1)@<=(\w+>)"
 " Stats
 syn match   gnuVar "\v\w+(_records|_outofrange|_invalid|_blank|_blocks)@=(\1)"
@@ -42,16 +44,18 @@ syn match   gnuVar "\v\w+(_size(_x|_y))@=(\1)"
 " Mouse
 syn match   gnuVar "\v(MOUSE_)(\1)@<=(\w+>)"
 hi def link gnuVar Constant
+" }}}
 
-" Fit -------------------------------------------------------------------------
+" Fit ----------------------------------------------------------------------{{{
 syn match   fitOpt "\v(fit .*)@<=(<i(ndex)?>|every|skip|<u(sing)?>|(x|y|xy|x)error)"
 syn match   fitOpt "\v(fit .*)@<=(errors|via)"
 hi def link fitOpt Keyword
+" }}}
 
-" Plot ------------------------------------------------------------------------
-syn match   pltOpt "\v(p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(binary|<i(ndex)?>|every|skip|<u(sing)?>)"
-syn match   pltOpt "\v(p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(<w(ith)?>|smooth|bins|mask|convexhull|zsort)"
-syn match   pltOpt "\v(p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
+" Plot/Splot ---------------------------------------------------------------{{{
+syn match   pltOpt "\v((s)?p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(binary|nonuniform|sparse|matrix|<i(ndex)?>|every|skip|<u(sing)?>)"
+syn match   pltOpt "\v((s)?p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(<w(ith)?>|smooth|bins|mask|convexhull|zsort)"
+syn match   pltOpt "\v((s)?p(lot)? .*\s|(\\\s*\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
 hi def link pltOpt Keyword
 " Smooth
 syn match   smtOpt "\v(smooth )@<=(unique|frequency|fnormal|cumulative|cnormal)"
@@ -79,7 +83,7 @@ hi def link titOps Identifier
 syn match   stitOps "\v(<(no)?t(it)?(le)? .*at .*)@<=(beginning|end)"
 hi def link stitOps Constant
 
-" Colorspec p. 60
+" Colorspec p. 60 {{{
 "syn keyword slcOpt white black dark-grey red web-green web-blue dark-magenta
 "syn keyword slcOpt dark-cyan dark-orange dark-yellow royalblue goldenrod
 "syn keyword slcOpt dark-spring-green purple orchid aquamarine brown yellow turquoise
@@ -95,12 +99,17 @@ hi def link stitOps Constant
 "syn keyword slcOpt pink khaki1 lemonchiffon bisque honeydew slategrey seagreen antiquewhite
 "syn keyword slcOpt chartreuse greenyellow gray light-gray light-grey slategray gray0
 "syn keyword slcOpt gra10 gra20 gra30 gray40 gray50 gray60 gray70 gray80 gray90 gray100
-syn match   slcOpt "\v((<lc>|<tc>|<fc>) )@<=(<rgb(color)?>|<pal(ette)?>|<bgnd>)"
+" }}}
+syn match   slcOpt "\v((<lc>|<tc>|<fc>) )@<=(<rgb(color)?>|<pal(ette)?>|<bgnd>|black)"
 hi def link slcOpt Constant
-" Reset -----------------------------------------------------------------------
+" }}}
+
+" Reset --------------------------------------------------------------------{{{
 syn match   resOpt "\v(reset )@<=(bind|errors|session)"
 hi def link resOpt Structure
-" Set/show --------------------------------------------------------------------
+" }}}
+
+" Set/show -----------------------------------------------------------------{{{
 syn match   setOpt "\v(((un)?set|show) .*)@<=(<angles>|<arrow>|<autoscale>)"
 syn match   setOpt "\v(((un)?set|show) .*)@<=(<bind>|<border>|<boxwidth>)"
 syn match   setOpt "\v(((un)?set|show) .*)@<=(<boxdepth>|<color>|<colormap>)"
@@ -141,39 +150,47 @@ syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2|cb)dtics>)"
 syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2|cb)mtics>|xyplane)"
 syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2)zeroaxis>)"
 hi def link setOpt Structure
+" }}}
 
-" Set-arrow--------------------------------------------------------------------
+" Set-arrow-----------------------------------------------------------------{{{
 syn match   sarroOpt "\v(arrow .*)@<=(from|to|arrowstyle|<as>|(no|back)?head(s)?)"
 syn match   sarroOpt "\v(arrow .*)@<=(size|fixed|(no)?filled|empty|noborder)"
 syn match   sarroOpt "\v(arrow .*)@<=(front|back|<ls>|<lt>|<lw>|<lc>|<dt>)"
 syn match   sarroOpt "\v(arrow .*)@<=(first|second|graph|screen|character)"
 hi def link sarroOpt Identifier
-" Set-border ------------------------------------------------------------------
+" }}}
+" Set-border ---------------------------------------------------------------{{{
 syn match   sbordOpt "\v(border .*)@<=(front|back|behind|linestyle|<ls>|linetype|<lt>)"
 syn match   sbordOpt "\v(border .*)@<=(linewidth|<lw>|linecolor|<lc>|dashtype|<dt>|polar)"
 hi def link sbordOpt Identifier
-" Set-datafile ----------------------------------------------------------------
+" }}}
+" Set-datafile -------------------------------------------------------------{{{
 syn match   sdatafOpt "\v(dataf(ile)? .*)@<=(columnheaders|fortran|nofpe_trap)"
 syn match   sdatafOpt "\v(dataf(ile)? .*)@<=(missing|sep(arator)?|commentschars)"
 syn match   sdatafOpt "\v(dataf(ile)? .*)@<=(binary)"
 hi def link sdatafOpt Identifier
-" Set-fit ---------------------------------------------------------------------
+" }}}
+" Set-fit ------------------------------------------------------------------{{{
 syn match   sfitOpt "\v(fit .*)@<=(<(no)?log(file)?>|default|<(no)?quiet>|results)"
 syn match   sfitOpt "\v(fit .*)@<=(brief|verbose|<(no)?errorv(ariables)?>)"
 syn match   sfitOpt "\v(fit .*)@<=(<(no)?cov(variancevables)?>|<(no)?errors(caling)?>)"
 hi def link sfitOpt Identifier
-" Set-format ------------------------------------------------------------------
+" }}}
+" Set-format ---------------------------------------------------------------{{{
 syn match   sforOpt "\v(format \w*)@<=(x|y|z|x2|y2|cb)"
 hi def link sforOpt Identifier
-" Set-grid --------------------------------------------------------------------
+" }}}
+" Set-grid -----------------------------------------------------------------{{{
 syn match   sgridOpt "\v(grid .*)@<=((no)?(m)?(x|y|z|x2|y2|r|cb)tics|polar)"
 syn match   sgridOpt "\v(grid .*)@<=(layerdefault|front|back|(no)?vertical)"
 hi def link sgridOpt Identifier
-" Set-hidden3d ----------------------------------------------------------------
+" }}}
+" Set-hidden3d -------------------------------------------------------------{{{
 syn match   shidOpt "\v(hidden3d .*)@<=(defaults|front|back|(no)?offset|trianglepattern)"
 syn match   shidOpt "\v(hidden3d .*)@<=((no)?undefined|(no)?altdiagonal|(no)?bentover)"
 hi def link shidOpt Identifier
-" Set-key ---------------------------------------------------------------------
+" }}}
+" Set-key ------------------------------------------------------------------{{{
 syn match   skeyOpt "\v( k(ey)? .*)@<=(<on>|<off>|default|<(no)?enhanced>)"
 syn match   skeyOpt "\v( k(ey)? .*)@<=(<(no)?a(utotitle)?>|<(no)?box>)"
 syn match   skeyOpt "\v( k(ey)? .*)@<=(<(no)?opaque>|width|height|vertical)"
@@ -190,7 +207,8 @@ syn match   sskeyOpt "\v((maxcols|maxrows) )@<=(auto)"
 syn match   sskeyOpt "\v((textcolor|<tc>) )@<=(default|<lt>|<ls>|<pal(ette)?>|rgb)"
 syn match   sskeyOpt "\v((title) )@<=((no)?enhanced|<c(enter)?>|<l(eft)?>|<r(ight)?>)"
 hi def link sskeyOpt Constant
-" Set-label -------------------------------------------------------------------
+" }}}
+" Set-label ----------------------------------------------------------------{{{
 syn match   slabOpt "\v(lab(el)? .*)@<=(<at>|<l(eft)?>|<c(enter)?>|<r(ight)?>)"
 syn match   slabOpt "\v(lab(el)? .*)@<=(<(no)?rot(ate)?>|by|font|<(no)?enhanded>)"
 syn match   slabOpt "\v(lab(el)? .*)@<=(front|back|textcolor|<tc>|<(no)?point>)"
@@ -200,16 +218,19 @@ hi def link slabOpt Identifier
 syn match   sslabOpt "\v((textcolor|<tc>) )@<=(default|<lt>|<ls>|pal(ette)?|rgb)"
 syn match   sslabOpt "\v(boxed )@<=(bs)"
 hi def link sslabOpt Constant
-" Set-logscale ----------------------------------------------------------------
+" }}}
+" Set-logscale -------------------------------------------------------------{{{
 syn match   slogOpt "\v(logscale \w*)@<=(x|y|z|x2|y2|r|cb)"
 hi def link slogOpt Identifier
-" Set-mouse -------------------------------------------------------------------
+" }}}
+" Set-mouse ----------------------------------------------------------------{{{
 syn match   smousOpt "\v(mouse .*)@<=((no)?doubleclick|(no)?zoomcoordinates)"
 syn match   smousOpt "\v(mouse .*)@<=(zoomfactors|(no)?ruler|(no)?polardistance)"
 syn match   smousOpt "\v(mouse .*)@<=((mouse)?format|function|(no)?lab(els)?)"
 syn match   smousOpt "\v(mouse .*)@<=((no)?zoomjump|(no)?verbose)"
 hi def link smousOpt Identifier
-" Set-multiplot ---------------------------------------------------------------
+" }}}
+" Set-multiplot ------------------------------------------------------------{{{
 syn match   smulpOpt "\v(multiplot .*)@<=(<t(it)?(le)?|layout)"
 hi def link smulpOpt Identifier
 " subattributes
@@ -217,7 +238,8 @@ syn match   ssmulpOpt "\v(<t(it)?(le)? .*)@<=(font|(no)?enhanced)"
 syn match   ssmulpOpt "\v(layout .*)@<=(rowsfirst|columnsfirst|downwards|upwards)"
 syn match   ssmulpOpt "\v(layout .*)@<=(scale|offset|margins|spacing)"
 hi def link ssmulpOpt Constant
-" Set-palette -----------------------------------------------------------------
+" }}}
+" Set-palette --------------------------------------------------------------{{{
 syn match   spalOpt "\v(palette .*)@<=(gray|color|gamma|rgbformulae|defined)"
 syn match   spalOpt "\v(palette .*)@<=(file|colormap|functions|cubehelix|viridis)"
 syn match   spalOpt "\v(palette .*)@<=(model|positive|negative|nops_allcF)"
@@ -227,7 +249,8 @@ hi def link spalOpt Identifier
 syn match   sspalOpt "\v(palette .*cubehelix .*)@<=(start|cycles|saturation)"
 syn match   sspalOpt "\v(palette .*model )@<=(rgb|RGB|cmy|CMY|hsv|HSV)"
 hi def link sspalOpt Constant
-" Set-pm3d --------------------------------------------------------------------
+" }}}
+" Set-pm3d -----------------------------------------------------------------{{{
 syn match   spmOpt "\v(pm3d .*)@<=(<at>|<interpolate>|<scansautomatic>|<scansforward>)"
 syn match   spmOpt "\v(pm3d .*)@<=(<scansbackward>|<depthorder>|<flush>|<(no)?ftriangles>)"
 syn match   spmOpt "\v(pm3d .*)@<=(<clip>|<clip1in>|<clip4in>|<(no)?clipcb>|<corners2color>)"
@@ -240,44 +263,76 @@ syn match   sspmOpt "\v(pm3d .*corners2color )@<=(<mean>|<geomean>|<harmean>|<rm
 syn match   sspmOpt "\v(pm3d .*corners2color )@<=(<median>|<min>|<max>|<c1>|<c2>|<c3>|<c4>)"
 syn match   sspmOpt "\v(pm3d .*lighting .*)@<=(primary|specular|spec2)"
 hi def link sspmOpt Constant
-" Set-size --------------------------------------------------------------------
+" }}}
+" Set-size -----------------------------------------------------------------{{{
 syn match   ssizOpt "\v(size .*)@<=((no)?square|(no)?ratio)"
 hi def link ssizOpt Identifier
-" Set-style -------------------------------------------------------------------
+" }}}
+" Set-style ----------------------------------------------------------------{{{
 syn match   sstOpt "\v(style .*)@<=(arrow|boxplot|data|fill|function|increment)"
-syn match   sstOpt "\v(style .*)@<=(lines?|circle|rectangle|ellipse|parallelaxis)"
+syn match   sstOpt "\v(style .*)@<=(line|circle|rectangle|ellipse|parallelaxis)"
 syn match   sstOpt "\v(style .*)@<=(spiderplot|textbox)"
 hi def link sstOpt Identifier
-" Arrow
+" Style arrow {{{
 syn match   stArr "\v(style .*arrow .*)@<=(default|(no|back)?heads?|size|<(no)?filled>)"
 syn match   stArr "\v(style .*arrow .*)@<=(empty|noborder|front|back|linestyle|<ls>)"
 syn match   stArr "\v(style .*arrow .*)@<=(linetype|<lt>|linewidth|<lw>|linecolor|<lc>)"
 syn match   stArr "\v(style .*arrow .*)@<=(dashtype|<dt>)"
 hi def link stArr Constant
-" Boxplot
-" Data
-" Fill
+" }}}
+" Style boxplot {{{
+syn match   sboxpOpt "\v(boxplot .*)@<=(ran(ge)?|fraction|(no)?out(liers)?|pointtype)"
+syn match   sboxpOpt "\n(boxplot .*)@<=(candlesticks|financebars|medianlinewidth|separation)"
+syn match   sboxpOpt "\n(boxplot .*)@<=(labels|off|auto|<x>|<x2>|(un)?sorted)"
+hi def link sboxpOpt Constant
+" }}}
+" Style fill {{{
 syn match   stFill "\v(style .*fill .*)@<=(empty|transparent|solid|pattern|<(no)?border>)"
 hi def link stFill Constant
-" Function
-" Increment
-" Line
+" }}}
+" Style increment {{{
+syn match   stInc "\v(style .*increment .*)@<=(default|user)"
+hi def link stInc Constant
+" }}}
+" Style line {{{
 syn match   stLine "\v(style .*line .*)@<=(linetype|<lt>|linecolor|<lc>)"
 syn match   stLine "\v(style .*line .*)@<=(linewidth|<lw>|pointtype|<pt>)"
 syn match   stLine "\v(style .*line .*)@<=(pointsize|<ps>|pointinverval|<pi>)"
 syn match   stLine "\v(style .*line .*)@<=(pointnumber|<pn>|dashtype|<dt>|palette)"
 hi def link stLine Constant
-" Circle
-" Rectangle
-syn match   stRect "\v(style .*rectangle .*)@<=(default|(no|back)?heads?)"
+" }}}
+" Style circle {{{
+syn match   stCirc "\v(style .*circle .*)@<=(radius|graph|screen|(no)?wedge|(no)?clip)"
+hi def link stCirc Constant
+" }}}
+" Style rectangle {{{
+syn match   stRect "\v(style .*rectangle .*)@<=(front|back|<lw>|linewidth)"
+syn match   stRect "\v(style .*rectangle .*)@<=(fillcolor|fs)"
 hi def link stRect Constant
-" Ellipse
-" Parallelaxis
-" Spiderplot
-" Textbox
+" }}}
+" Style ellipse {{{
+syn match   stElli "\v(style .*ellipse.*)@<=(units|xx|xy|yy|size|graph|screen)"
+syn match   stElli "\v(style .*ellipse.*)@<=(angle|(no)?clip)"
+hi def link stElli Constant
+" }}}
+" Style parallelaxis {{{
+syn match   stPara "\v(style .*parallelaxis.*)@<=(front|back)"
+hi def link stPara Constant
+" }}}
+" Style spiderplot {{{
+syn match   stSpid "\v(style .*spiderplot.*)@<=(fillstyle)"
+hi def link stSpid Constant
+" }}}
+" Style textbox {{{
 syn match   stTexb "\v(style .*textbox .*)@<=(default|(no|back)?heads?)"
 hi def link stTexb Constant
-" Set-xtics -------------------------------------------------------------------
+" }}}
+" }}}
+" Set-surface --------------------------------------------------------------{{{
+syn match   stsurf "\v(surface .*)@<=(implicit|explicit)"
+hi def link stsurf Identifier
+"  }}}
+" Set-xtic -----------------------------------------------------------------{{{
 syn match   sticsOpt "\v(<m?(x|y|z|x2|y2|cb|r)tics> .*)@<=(axis|border|(no)?mirror)"
 syn match   sticsOpt "\v(<m?(x|y|z|x2|y2|cb|r)tics> .*)@<=(in|out|scale|default)"
 syn match   sticsOpt "\v(<m?(x|y|z|x2|y2|cb|r)tics> .*)@<=((no)?rotate|(no)?offset)"
@@ -287,37 +342,35 @@ syn match   sticsOpt "\v(<m?(x|y|z|x2|y2|cb|r)tics> .*)@<=((no)?enhanced|numeric
 syn match   sticsOpt "\v(<m?(x|y|z|x2|y2|cb|r)tics> .*)@<=(geographic|(no)?logscale)"
 syn match   sticsOpt "\v(<m?(x|y|z|x2|y2|cb|r)tics> .*)@<=((no)?rangelimit(ed)?|textcolor)"
 hi def link sticsOpt Identifier
-" Set-xlabel -------------------------------------------------------------------
+" }}}
+" Set-xlabel ----------------------------------------------------------------{{{
 syn match   sxlabOpt "\v(<(x|y|z|x2|y2|cb)lab(el)?>)@<=(offset|font|textcolor|(no)?enhanced)"
 syn match   sxlabOpt "\v(<(x|y|z|x2|y2|cb)lab(el)?>)@<=((no)?rotate (by|parallel)?)"
 hi def link sxlabOpt Identifier
-" Set-xrange -------------------------------------------------------------------
+" }}}
+" Set-xrange ----------------------------------------------------------------{{{
 syn match   sranOpt "\v(<(x|y|z|x2|y2|cb|r|t|u|v)ran(ge)?> .*)@<=((no)?rev(erse)?)"
 syn match   sranOpt "\v(<(x|y|z|x2|y2|cb|r|t|u|v)ran(ge)?> .*)@<=((no)?writeback)"
 syn match   sranOpt "\v(<(x|y|z|x2|y2|cb|r|t|u|v)ran(ge)?> .*)@<=((no)?extend|restore)"
 hi def link sranOpt Identifier
-" Set-xyplane -----------------------------------------------------------------
+" }}}
+" Set-xyplane --------------------------------------------------------------{{{
 syn match   sxyplOpt "\v(xyplane .*)@<=(at|relative)"
 hi def link sxyplOpt Identifier
+" }}}
 
-" Splot -----------------------------------------------------------------------
-
-" Smooth
-syn match   smtOpt "\v(smooth )@<=(unique|frequency|fnormal|cumulative|cnormal)"
-syn match   smtOpt "\v(smooth )@<=(csplines|acsplines|mcsplines|path|bezier)"
-syn match   smtOpt "\v(smooth )@<=(sbezier|kdensity|convexhull|unwrap)"
-hi def link smtOpt Identifier
-
-" Stats -----------------------------------------------------------------------
+" Stats --------------------------------------------------------------------{{{
 syn match   statOpt "\v(stats .*)@<=(matrix| u(sing)?>|name|(no)?output)"
 hi def link statOpt Keyword
+" }}}
 
-" User-defined ----------------------------------------------------------------
+" User-defined -------------------------------------------------------------{{{
 syn match   plotDef "\v\w+(\(\p*)@=" " function
 syn match   plotDef "\v(array )@<=\w+(\[\p*)@=" " array
 hi def link plotDef Define
+" }}}
 
-" Operators -------------------------------------------------------------------
+" Operators ----------------------------------------------------------------{{{
 " Unary Operators
 syn match   gnuOp "[-+~!|$]"
 " Binary Operators
@@ -341,8 +394,9 @@ syn match   gnuOp "\v<ne>"
 syn match   gnuOp "\v(\p+)@<=\?(\p+:\p+)@=" " ?
 syn match   gnuOp "\v(\p+\?[^:]+)@<=:(\p+)@=" " :
 hi def link gnuOp Operator
+" }}}
 
-" Functions -------------------------------------------------------------------
+" Functions ----------------------------------------------------------------{{{
 " Math built-in Functions
 syn match   gnuFn "\v(abs|acos|acosh|airy|arg|asin|asinh)(\(\p*)@="
 syn match   gnuFn "\v(atan|atan2|atanh|besj0|besj1|besjn)(\(\p*)@="
@@ -374,17 +428,21 @@ syn match   gnuFn "\v(tm_year|weekdate_iso|weekdate_cdc)(\(\p*)@="
 syn match   gnuFn "\v(column|columnhead|exists|hsv2rgb|index)(\(\p*)@="
 syn match   gnuFn "\v(palette|rgbcolor|stringcolumn|valid|value|voxel)(\(\p*)@="
 hi def link gnuFn Function
+" }}}
 
-" Macros ----------------------------------------------------------------------
+" Macros -------------------------------------------------------------------{{{
 syn match   gnuMacro "@\w\+"
 hi def link gnuMacro Macro
+" }}}
 
-" Strings ---------------------------------------------------------------------
+" Strings ------------------------------------------------------------------{{{
 syn region  gnuString start=+"+ skip=+\\"+ end=+"+
 syn region  gnuString start="'" end="'"
 hi def link gnuString String
+" }}}
 
-" Terminals -------------------------------------------------------------------
+" Terminals ----------------------------------------------------------------{{{
+syn keyword gnuTerminal push pop
 syn keyword gnuTerminal aifm aqua be block caca cairolatex canvas cgm
 syn keyword gnuTerminal context domterm dumb dxf emf epscairo epslatex
 syn keyword gnuTerminal fig gif hpgl jpeg lua mf mp pcl5 pdfcairo
@@ -407,19 +465,24 @@ syn match   pdfcaOpt "\v(pdfcairo .*)@<=(linewidth|<lw>|rounded|butt|square|dash
 syn match   pdfcaOpt "\v(pdfcairo .*)@<=(<dl>|background|size)"
 hi def link pdfcaOpt Constant
 " Png
+syn match   pngOpt
+hi def link pngOpt Constant
 " Pngcairo
 " Qt
 " Svg
 " Texdraw
 " Tikz
 " Wxt
+" }}}
 
-" Comment ---------------------------------------------------------------------
+" Comment ------------------------------------------------------------------{{{
 syn region  plotComment start="#" skip="\\" end="\n" contains=plotTodo
 hi def link plotComment Comment
+" }}} 
 
-" Todo ------------------------------------------------------------------------
+" Todo ---------------------------------------------------------------------{{{
 syn keyword plotTodo contained TODO FIXME XXX
 hi def link plotTodo Todo
+" }}} 
 
 let b:current_syntax = "gnuplot"
