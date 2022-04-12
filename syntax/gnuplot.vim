@@ -61,9 +61,9 @@ hi def link pa_mouseOpt Identifier
 "  }}}
 
 " Plot/Splot ---------------------------------------------------------------{{{
-syn match   pltOpt "\v(<s?p(lot)>?.*\s|(\\\s*\n)+.*\s)@<=(keyentry|binary|nonuniform|sparse|matrix|<i(ndex)?>|every|skip|<u(sing)?>)"
-syn match   pltOpt "\v(<s?p(lot)>?.*\s|(\\\s*\n)+.*\s)@<=(<w(ith)?>|smooth|bins|mask|convexhull|zsort)"
-syn match   pltOpt "\v(<s?p(lot)>?.*\s|(\\\s*\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
+syn match   pltOpt "\v(<s?p(lot)?>.*\s|(\\\s*\n)+.*\s)@<=(keyentry|binary|nonuniform|sparse|matrix|<i(ndex)?>|every|skip|<u(sing)?>)"
+syn match   pltOpt "\v(<s?p(lot)?>.*\s|(\\\s*\n)+.*\s)@<=(<w(ith)?>|smooth|bins|mask|convexhull|zsort)"
+syn match   pltOpt "\v(<s?p(lot)?>.*\s|(\\\s*\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
 hi def link pltOpt Keyword
 " Smooth
 syn match   plt_smtOpt "\v(smooth )@<=(unique|frequency|fnormal|cumulative|cnormal)"
