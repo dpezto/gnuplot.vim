@@ -20,15 +20,15 @@ This plugin follows the standard runtime path structure, and as such it can be i
 | pack feature (native Vim 8 package feature)| `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/pack/plugins/start/gnuplot` |
 
 ### Manual installation
-In order to have vim automatically detect csv files, you need to have
+In order to have vim automatically detect gnuplot files, you need to have
 [`ftplugins`](http://vimhelp.appspot.com/usr_05.txt.html#ftplugins) enabled (e.g. by having this line in your [`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc) file:
 
 ```vim
 :filetype plugin on
 ```
 
-The plugin already sets up some logic to detect CSV files. In order that the
-CSV filetype plugin is loaded correctly, vim needs to be enabled to load
+The plugin already sets up some logic to detect gnuplot files. In order that the
+gnuplot filetype plugin is loaded correctly, vim needs to be enabled to load
 [`filetype-plugins`](http://vimhelp.appspot.com/filetype.txt.html#filetype-plugins). This can be ensured by putting a line like this in your
 [`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc):
 
