@@ -20,6 +20,12 @@ syn match   gnuNumber "\v(<\d*((\.\d+)?((e|E)(-|\+)?\d+)?)?)@<=(cm|in|pt)"
 hi def link gnuNumber Number
 " }}}
 
+" User-defined -------------------------------------------------------------{{{
+syn match   gnuDef "\v\w+(\(\p*)@=" " function
+syn match   gnuDef "\v\w+(\[[^:]+)@=" " array
+hi def link gnuDef Define
+" }}}
+
 " Commands ------------------------------------------------------------------{{{
 syn keyword gnuCmd array break cd call clear continue do
 syn keyword gnuCmd exit fit help history if else for import
@@ -395,12 +401,6 @@ hi def link set_zeroaOpt Identifier
 " Stats --------------------------------------------------------------------{{{
 syn match   statsOpt "\v(stats .*)@<=(matrix| u(sing)?>|name|(no)?output)"
 hi def link statsOpt Keyword
-" }}}
-
-" User-defined -------------------------------------------------------------{{{
-syn match   gnuDef "\v\w+(\(\p*)@=" " function
-syn match   gnuDef "\v\w+(\[[^:]+)@=" " array
-hi def link gnuDef Define
 " }}}
 
 " Operators ----------------------------------------------------------------{{{
