@@ -243,7 +243,7 @@ syn match   set_mousOpt "\v(mouse .*)@<=((no)?zoomjump|(no)?verbose)"
 hi def link set_mousOpt Identifier
 " }}}
 " Set-multiplot ------------------------------------------------------------{{{
-syn match   set_mulpOpt "\v(multiplot .*)@<=(<t(it)?(le)?|layout)"
+syn match   set_mulpOpt "\v(multiplot .*)@<=(<t(it)?(le)?>|layout)"
 hi def link set_mulpOpt Identifier
 " subattributes
 syn match   sets_mulpOpt "\v(<t(it)?(le)? .*)@<=(font|(no)?enhanced)"
@@ -399,7 +399,7 @@ hi def link set_zeroaOpt Identifier
 " }}}
 
 " Stats --------------------------------------------------------------------{{{
-syn match   statsOpt "\v(stats .*)@<=(matrix| u(sing)?>|name|(no)?output)"
+syn match   statsOpt "\v(stats .*)@<=(matrix| u(sing)?>| i(ndex)?>|name|(no)?output)"
 hi def link statsOpt Keyword
 " }}}
 
