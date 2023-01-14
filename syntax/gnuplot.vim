@@ -3,7 +3,7 @@
 " Creator:      Dai López Jacinto <dpezto@gmail.com>
 " Last Change:  Mar 28, 2022
 " Filenames:    *.plt *.plot *.gp *.gnuplot *.gnu
-" URL:          http://www.github/dpezto/syntax/
+" URL:          http://www.github/dpezto/gnuplot.vim/
 
 " Use :syn w/in a buffer to see language element breakdown
 
@@ -537,7 +537,7 @@ hi def link plotComment Comment
 " }}} 
 
 " Todo ---------------------------------------------------------------------{{{
-syn keyword plotTodo contained TODO FIXME XXX
+syn keyword plotTodo contained TODO FIXME XXX BUG NOTE HACK
 hi def link plotTodo Todo
 " }}} 
 
