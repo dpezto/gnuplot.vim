@@ -8,11 +8,11 @@ vim9script
 
 # Use :syn w/in a buffer to see language element breakdown
 
-if version < 600
-  syntax clear
-elseif exists("b:current_syntax")
-  finish
-endif
+#if version < 600
+#  syntax clear
+#elseif exists("b:current_syntax")
+#  finish
+#endif
 
 # Number -------------------------------------------------------------------{{{
 syn keyword gnuNumber pi NaN I
@@ -22,8 +22,8 @@ hi def link gnuNumber Number
 # }}}
 
 # User-defined -------------------------------------------------------------{{{
-syn match   gnuDef "\v\w+(\(\p*)@=" " function
-syn match   gnuDef "\v\w+(\[[^:]+)@=" " array
+syn match   gnuDef "\v\w+(\(\p*)@=" # function
+syn match   gnuDef "\v\w+(\[[^:]+)@=" # array
 hi def link gnuDef Define
 # }}}
 
@@ -425,8 +425,8 @@ syn match   gnuOp "\v(\([^\)]*)@<=,([^\(]*\))@="
 syn match   gnuOp "\v<eq>"
 syn match   gnuOp "\v<ne>"
 # Ternary Operators
-syn match   gnuOp "\v(\p+)@<=\?(\p+:\p+)@=" " ?
-syn match   gnuOp "\v(\p+\?[^:]+)@<=:(\p+)@=" " :
+syn match   gnuOp "\v(\p+)@<=\?(\p+:\p+)@=" # ?
+syn match   gnuOp "\v(\p+\?[^:]+)@<=:(\p+)@=" # :
 hi def link gnuOp Operator
 # }}}
 
