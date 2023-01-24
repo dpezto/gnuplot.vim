@@ -533,7 +533,7 @@ hi def link propOpt Constant
 " }}}
 
 " Comment ------------------------------------------------------------------{{{
-syn region  plotComment start=""" skip="\\" end="\n" contains=plotTodo
+syn region  plotComment start="#" skip="\\" end="\n" contains=plotTodo
 hi def link plotComment Comment
 " }}} 
 
