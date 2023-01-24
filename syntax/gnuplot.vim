@@ -1,4 +1,3 @@
-vim9script
 " Vim syntax file
 " Language:     Gnuplot 5.5
 " Creator:      Dai López Jacinto <dpezto@gmail.com>
