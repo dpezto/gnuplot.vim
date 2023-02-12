@@ -32,7 +32,7 @@ syn keyword gnuCmd exit fit help history if else for import
 syn keyword gnuCmd load lower pause print pwd quit raise refresh reread
 syn keyword gnuCmd reset save set shell show stats sum system
 syn keyword gnuCmd test toggle undefine unset update vclear vfill while
-syn match   gnuCmd "\v(<eval(uate)?>|<rep(lot)?>|<s?p(lot)?>)"
+syn match   gnuCmd "\v(<eval(uate)?>|<rep(l(o(t)?)?)?>|<s?p(l(o(t)?)?)?>)"
 hi def link gnuCmd Statement
 " }}}
 
@@ -53,7 +53,8 @@ hi def link gnuVar Constant
 " }}}
 
 " Fit ----------------------------------------------------------------------{{{
-syn match   fitOpt "\v(fit .*)@<=(<i(ndex)?>|every|skip|<u(sing)?>|(x|y|xy|x)error)"
+syn match   fitOpt "\v(fit .*)@<=(<i(n(d(ex?)?)?)?>|every|skip)"
+syn match   fitOpt "\v(fit .*)@<=(<u(s(i(ng?)?)?)?>|(x|y|xy|x)error)"
 syn match   fitOpt "\v(fit .*)@<=(errors|via)"
 hi def link fitOpt Keyword
 " }}}
@@ -67,9 +68,10 @@ hi def link pa_mouseOpt Identifier
 "  }}}
 
 " Plot/Splot ---------------------------------------------------------------{{{
-syn match   pltOpt "\v(<s?p(lot)?>.*\s|(\\\s*\n)+.*\s)@<=(keyentry|binary|nonuniform|sparse|matrix|<i(ndex)?>|every|skip|<u(sing)?>)"
-syn match   pltOpt "\v(<s?p(lot)?>.*\s|(\\\s*\n)+.*\s)@<=(<w(ith)?>|smooth|bins|mask|convexhull|zsort)"
-syn match   pltOpt "\v(<s?p(lot)?>.*\s|(\\\s*\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
+syn match   pltOpt "\v(<s?p(l(ot?)?)?>.*\s|(\\\s*\n)+.*\s)@<=(keyentry|binary|nonuniform|sparse|matrix|<i(n(d(ex?)?)?)?>)"
+syn match   pltOpt "\v(<s?p(l(ot?)?)?>.*\s|(\\\s*\n)+.*\s)@<=(every|skip|<u(s(i(ng?)?)?)?>)"
+syn match   pltOpt "\v(<s?p(l(ot?)?)?>.*\s|(\\\s*\n)+.*\s)@<=(<w(i(th?)?)?>|smooth|bins|mask|convexhull|zsort)"
+syn match   pltOpt "\v(<s?p(l(ot?)?)?>.*\s|(\\\s*\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
 hi def link pltOpt Keyword
 " Smooth
 syn match   plt_smtOpt "\v(smooth )@<=(unique|frequency|fnormal|cumulative|cnormal)"
@@ -77,22 +79,22 @@ syn match   plt_smtOpt "\v(smooth )@<=(csplines|acsplines|mcsplines|path|bezier)
 syn match   plt_smtOpt "\v(smooth )@<=(sbezier|kdensity|convexhull|unwrap)"
 hi def link plt_smtOpt Identifier
 " With
-syn match   plt_withOpt "\v(<w(ith)?> )@<=(<l(ines)?>|<p(oints)?>|linespoints|<lp>)"
-syn match   plt_withOpt "\v(<w(ith)?> )@<=(financebars|<d(ots)?>|impulses|labels)"
-syn match   plt_withOpt "\v(<w(ith)?> )@<=(surface|(f|hi)?steps|arrows|v(ec)?(tors)?)"
-syn match   plt_withOpt "\v(<w(ith)?> )@<=((x|y)error(bar|lines)|xyerror(bars|lines))"
-syn match   plt_withOpt "\v(<w(ith)?> )@<=(parallelaxes|spiderplot)"
-syn match   plt_withOpt "\v(p(lot)?.*\s|(\\\s*\n)+.*\s)@<=(newspiderplot)"
-syn match   plt_withOpt "\v(<w(ith)?> )@<=(boxes|boxerrorbars|boxxyerror|isosurface)"
-syn match   plt_withOpt "\v(<w(ith)?> )@<=(boxplot|candlesticks|circles|zerrorfill)"
-syn match   plt_withOpt "\v(<w(ith)?> )@<=(ellipses|filledcurves?|fillsteps|histograms)"
-syn match   plt_withOpt "\v(<w(ith)?> )@<=(image|pm3d|rgbalpha|rgbimage|polygons)"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(<l(ines)?>|<p(oints)?>|linespoints|<lp>)"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(financebars|<d(ots)?>|impulses|labels)"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(surface|(f|hi)?steps|arrows|v(ec)?(tors)?)"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=((x|y)error(bar|lines)|xyerror(bars|lines))"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(parallelaxes|spiderplot)"
+syn match   plt_withOpt "\v(p(l(ot?)?)?.*\s|(\\\s*\n)+.*\s)@<=(newspiderplot)"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(boxes|boxerrorbars|boxxyerror|isosurface)"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(boxplot|candlesticks|circles|zerrorfill)"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(ellipses|filledcurves?|fillsteps|histograms)"
+syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(image|pm3d|rgbalpha|rgbimage|polygons)"
 hi def link plt_withOpt Identifier
 " filledcurves
 syn match   plt_fillcOpt "\v(filledcurves? .*)@<=(closed|above|below|between)"
 hi def link plt_fillcOpt Constant
 " subattributes
-syn match   plts_withOpt "\v((p(lot)?.*\s|(\\\s*\n)+.*\s))@<=(<ls>|<lt>|<lw>|<lc>|<pt>|<ps>)"
+syn match   plts_withOpt "\v((p(l(ot?)?)?.*\s|(\\\s*\n)+.*\s))@<=(<ls>|<lt>|<lw>|<lc>|<pt>|<ps>)"
 hi def link plts_withOpt Constant
 " Title
 syn match   plt_titOps "\v(<(no)?t(it)?(le)? )@<=(<columnheader|<at>|<(no)?enhanced)"
@@ -534,11 +536,11 @@ hi def link propOpt Constant
 " Comment ------------------------------------------------------------------{{{
 syn region  plotComment start="#" skip="\\" end="\n" contains=plotTodo
 hi def link plotComment Comment
-" }}} 
+" }}}
 
 " Todo ---------------------------------------------------------------------{{{
 syn keyword plotTodo contained TODO FIXME XXX BUG NOTE HACK
 hi def link plotTodo Todo
-" }}} 
+" }}}
 
 let b:current_syntax = "gnuplot"
