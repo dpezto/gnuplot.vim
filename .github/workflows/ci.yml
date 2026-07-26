@@ -56,3 +56,53 @@ jobs:
         run: ${{ steps.vim.outputs.executable }} --headless -u NONE -S tests/run.vim
       - if: matrix.editor == 'vim'
         run: ${{ steps.vim.outputs.executable }} -es -u NONE -S tests/run.vim
+
+  # Coverage of the VimL itself. covimerage wraps the editor in :profile and
+  # turns the profile log into a Coverage.py data file, so "covered" means the
+  # line was actually sourced by the assertions.
+  #
+  # Both editors run into the same data file, because a single one cannot reach
+  # everything: ftdetect/gnuplot.vim short-circuits on has('nvim'), so under
+  # Neovim alone its Vim half never executes and the file sits at 27%. Appending
+  # the Vim run takes it to 100%.
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v6
+        with:
+          python-version: "3.12"
+      # Same pkg_resources story as the vint job: covimerage 0.2.2 ships
+      # Coverage.py 5.0a5, which setuptools 81 broke.
+      - run: pip install covimerage "setuptools<81"
+
+      - uses: rhysd/action-setup-vim@febef33995d6649302e9d88dda81e071b68f16a7 # v1
+        id: neovim
+        with:
+          neovim: true
+          version: stable
+      - uses: rhysd/action-setup-vim@febef33995d6649302e9d88dda81e071b68f16a7 # v1
+        id: vim
+        with:
+          version: stable
+
+      # --no-report keeps the intermediate runs quiet; --append on the second
+      # merges into the first one's data file rather than replacing it.
+      - name: Measure under Neovim
+        run: >
+          covimerage run --no-report
+          --source syntax --source ftdetect --source ftplugin
+          ${{ steps.neovim.outputs.executable }} --headless -u NONE -S tests/run.vim
+      - name: Measure under Vim
+        run: >
+          covimerage run --append --no-report
+          --source syntax --source ftdetect --source ftplugin
+          ${{ steps.vim.outputs.executable }} -es -u NONE -S tests/run.vim
+      - run: covimerage report
+      - run: covimerage xml
+
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        with:
+          files: coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true

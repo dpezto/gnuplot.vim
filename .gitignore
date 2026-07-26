@@ -1,3 +1,7 @@
 node_modules/
 .DS_Store
 doc/tags
+
+# covimerage output
+.coverage_covimerage
+coverage.xml
