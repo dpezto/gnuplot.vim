@@ -1,0 +1,103 @@
+*gnuplot.txt*   Syntax highlighting for gnuplot 6
+
+==============================================================================
+CONTENTS                                                    *gnuplot-contents*
+
+    1. Introduction ........................... |gnuplot-introduction|
+    2. Filetype detection ..................... |gnuplot-ftdetect|
+    3. Highlight groups ....................... |gnuplot-groups|
+    4. Abbreviations .......................... |gnuplot-abbreviations|
+    5. Known limits ........................... |gnuplot-limits|
+    6. Regenerating ........................... |gnuplot-regenerating|
+
+==============================================================================
+1. INTRODUCTION                                         *gnuplot-introduction*
+
+Syntax highlighting for gnuplot 6 scripts.
+
+The keyword lists are generated from `keywords.json`, a pinned copy of the
+dictionary emitted by the tree-sitter-gnuplot grammar. Both projects therefore
+recognise the same words with the same abbreviation rules.
+
+==============================================================================
+2. FILETYPE DETECTION                                       *gnuplot-ftdetect*
+
+The filetype is set for these extensions: >
+
+    .gnu  .gnuplot  .gp  .gpi  .pal  .plot  .plt
+
+and for any file whose first line is a shebang naming gnuplot: >
+
+    #!/usr/bin/env gnuplot
+
+Note that the stock Vim and Neovim runtimes claim `.gp` and `.gpi` for
+PARI/GP. Detection uses |:setf|, which does not override a filetype another
+runtime file already set, so on those two extensions whichever detection runs
+first wins.
+
+==============================================================================
+3. HIGHLIGHT GROUPS                                           *gnuplot-groups*
+
+The groups mirror the capture taxonomy of the tree-sitter grammar, where an
+alias names the clause family a word belongs to rather than the word itself.
+
+    gnuplotCommand      command verb (plot, set, splot)
+    gnuplotOption       set/show option head and its suboptions
+    gnuplotFlag         toggles, {no}X forms, coordinate systems
+    gnuplotValue        enumerated values (degrees, comma, cspline)
+    gnuplotAttribute    plot-element modifier (with, using, title)
+    gnuplotStyle        plot style name (lines, boxes, pm3d)
+    gnuplotConditional  if, else
+    gnuplotRepeat       do, while, for, in
+
+    gnuplotComment gnuplotTodo gnuplotString gnuplotEscape gnuplotFormat
+    gnuplotDatablock gnuplotDatablockName gnuplotMacro gnuplotNumber
+    gnuplotConstant gnuplotBuiltinVar gnuplotFunction gnuplotBuiltinFunction
+    gnuplotOperator gnuplotShell
+
+Each links to a standard group, so any colorscheme handles them. Override a
+link in your |vimrc| after the syntax loads: >
+
+    autocmd ColorScheme * hi link gnuplotStyle Special
+
+==============================================================================
+4. ABBREVIATIONS                                       *gnuplot-abbreviations*
+
+gnuplot lets most keywords be shortened, and the plugin follows the same
+minimums. `set xran [0:1]` and `set xrange [0:1]` highlight identically
+because the generated list spells the keyword `xran[ge]`, which is |:syn-keyword|'s
+own notation for an optional tail. No regular expressions are involved.
+
+==============================================================================
+5. KNOWN LIMITS                                               *gnuplot-limits*
+
+Vim keywords carry no context, so a word that means two things in gnuplot gets
+one colour. `p` opens a plot command and also names the `points` style; the
+command wins. `f` is the `fit` command, so `f(x) = x**2` colours `f` as a
+command rather than a function definition.
+
+Where a word belongs to several tiers the generator picks one, preferring, in
+order: command, option, style, attribute, value, flag.
+
+Some option heads are currently stricter than gnuplot: the dictionary records
+`xrange` with a minimum of four characters, so `set xr` is not highlighted even
+though gnuplot accepts it. This is a property of the upstream dictionary and is
+fixed there, not here.
+
+==============================================================================
+6. REGENERATING                                         *gnuplot-regenerating*
+
+After refreshing `keywords.json` from the grammar: >
+
+    npm run gen:syntax
+
+Only the block between the generated markers in `syntax/gnuplot.vim` changes;
+everything else in that file is hand written. CI runs
+`npm run check:syntax` and fails if the committed file is stale.
+
+Run the assertions with: >
+
+    nvim --headless -u NONE -S tests/run.vim
+    vim  -es      -u NONE -S tests/run.vim
+
+vim:tw=78:ts=8:ft=help:norl:

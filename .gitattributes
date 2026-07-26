@@ -1,0 +1,5 @@
+* text=auto eol=lf
+
+# Generated from keywords.json — collapse it in review diffs.
+syntax/gnuplot.vim linguist-generated=false
+keywords.json linguist-generated=true

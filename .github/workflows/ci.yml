@@ -1,0 +1,56 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: reviewdog/action-actionlint@50842263c20a7c46bd0065b9e624d3c569db061e # v1
+
+  # vint catches deprecated/unportable VimL that still loads without error
+  vint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@e9d6f990972a57673cdb72ec29e19d42ba28880f # v6
+        with:
+          python-version: "3.x"
+      - run: pip install vim-vint
+      - run: vint --style-problem ftdetect ftplugin syntax tests
+
+  # syntax/gnuplot.vim is generated from keywords.json; a hand edit inside the
+  # markers, or a refreshed dictionary, must not land without regenerating.
+  generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version: lts/*
+      - run: node scripts/gen-syntax.mjs --check
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        editor: [vim, neovim]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: rhysd/action-setup-vim@febef33995d6649302e9d88dda81e071b68f16a7 # v1
+        id: vim
+        with:
+          neovim: ${{ matrix.editor == 'neovim' }}
+          version: stable
+      # Both editors run the same assertions; the script calls cquit! on
+      # failure, which is what fails the job.
+      - if: matrix.editor == 'neovim'
+        run: ${{ steps.vim.outputs.executable }} --headless -u NONE -S tests/run.vim
+      - if: matrix.editor == 'vim'
+        run: ${{ steps.vim.outputs.executable }} -es -u NONE -S tests/run.vim

@@ -1,0 +1,12 @@
+{
+  "name": "gnuplot.vim",
+  "private": true,
+  "description": "Tooling for the gnuplot.vim syntax plugin",
+  "type": "module",
+  "scripts": {
+    "gen:syntax": "node scripts/gen-syntax.mjs",
+    "check:syntax": "node scripts/gen-syntax.mjs --check",
+    "test": "nvim --headless -u NONE -S tests/run.vim"
+  },
+  "license": "MIT"
+}

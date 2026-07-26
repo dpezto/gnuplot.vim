@@ -1,0 +1,44 @@
+name: Bug report
+description: A gnuplot construct highlights wrong, or not at all
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: gnuplot.vim version / commit
+      placeholder: "a commit SHA"
+    validations:
+      required: true
+  - type: input
+    id: editor
+    attributes:
+      label: Editor
+      placeholder: "Neovim 0.12 / Vim 9.1"
+    validations:
+      required: true
+  - type: textarea
+    id: snippet
+    attributes:
+      label: Minimal gnuplot snippet
+      description: Smallest input that highlights wrong. Confirm it is accepted by `gnuplot` itself.
+      render: gnuplot
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected vs actual
+      description: >-
+        Which word, and what it should be versus what it is. `:echo
+        synIDattr(synID(line("."), col("."), 1), "name")` with the cursor on the
+        word gives the group it currently gets.
+    validations:
+      required: true
+  - type: checkboxes
+    id: known
+    attributes:
+      label: Known limits
+      description: See the "Known limits" section of the README.
+      options:
+        - label: This is not a single-letter abbreviation that means two things (`p`, `f`)
+        - label: This is not an option head whose minimum is stricter upstream (`set xr`)
