@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: gnuplot.vim
+abstract: Syntax highlighting for gnuplot 6 in Vim and Neovim, generated from the tree-sitter-gnuplot keyword dictionary.
+type: software
+authors:
+  - given-names: Dai
+    family-names: López Jacinto
+repository-code: "https://github.com/dpezto/gnuplot.vim"
+url: "https://github.com/dpezto/gnuplot.vim"
+license: MIT
+keywords:
+  - gnuplot
+  - vim
+  - neovim
+  - syntax-highlighting
+version: 0.0.0 # x-release-please-version
+date-released: "2026-07-26" # x-release-please-date

@@ -37,9 +37,20 @@ silently resolves it to whichever entry comes first in its own table, so
 
 ## Commits and PR titles
 
-PRs are squash-merged, so **PR titles must follow
+PRs are squash-merged and releases are cut by
+[release-please](https://github.com/googleapis/release-please) from the commit
+history, so **PR titles must follow
 [Conventional Commits](https://www.conventionalcommits.org)** (`feat: …`,
-`fix: …`, `docs: …`). CI checks the title.
+`fix: …`, `docs: …`). CI checks the title; `feat` and `fix` decide the version
+bump and the CHANGELOG entry, and a `!` suffix or a `BREAKING CHANGE:` footer
+forces a major.
+
+Do **not** hand-edit versions. release-please owns `version.txt`,
+`CHANGELOG.md` and the `version` and `date-released` fields of `CITATION.cff` —
+the latter two through the `# x-release-please-version` and
+`# x-release-please-date` markers on those lines. A file that is not listed
+under `extra-files` in `.release-please-config.json` is silently never updated,
+which is how a CITATION.cff goes stale without anyone noticing.
 
 ## AI-assisted contributions
 

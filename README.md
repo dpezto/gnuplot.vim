@@ -88,6 +88,12 @@ Only the block between the generated markers in `syntax/gnuplot.vim` is
 machine written; the rest of the file is hand maintained. To pick up new
 keywords, copy `keywords.json` from the grammar repository and regenerate.
 
+## Citation
+
+`CITATION.cff` carries the current version and release date. Both are written
+by release-please, so a `Cite this repository` on GitHub always matches the
+latest tag.
+
 ## Credits
 
 A ground-up rewrite following earlier work by
