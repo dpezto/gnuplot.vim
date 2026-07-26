@@ -14,9 +14,15 @@ endif
 " becomes part of the next pattern and stops it matching anything.
 augroup gnuplotFtdetect
   autocmd!
-  autocmd BufNewFile,BufRead *.gnu,*.gnuplot,*.gp,*.gpi,*.plot,*.plt
+  " Extensions the stock runtime leaves alone, so :setfiletype is enough.
+  autocmd BufNewFile,BufRead *.gnu,*.gnuplot,*.gpi,*.plot,*.plt
         \ setfiletype gnuplot
   autocmd BufNewFile,BufRead gnuplotrc,.gnuplot setfiletype gnuplot
+  " Vim's runtime assigns `.gp` to PARI/GP, and :setfiletype will not override
+  " a filetype that is already set. Installing a gnuplot plugin is a statement
+  " about what `.gp` means here, and the Neovim side claims it too, so assign
+  " it outright rather than leaving the two editors inconsistent.
+  autocmd BufNewFile,BufRead *.gp set filetype=gnuplot
   " Scripts run through `gnuplot` with a shebang.
   autocmd BufNewFile,BufRead *
         \ if getline(1) =~# '^#!.*\<gnuplot\>' | setfiletype gnuplot | endif

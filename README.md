@@ -24,8 +24,12 @@ No configuration is needed. `:help gnuplot` documents the highlight groups.
 
 ## What it recognises
 
-`.gnu`, `.gnuplot`, `.gp`, `.gpi`, `.pal`, `.plot` and `.plt`, plus any file
-whose first line is a shebang naming gnuplot.
+`.gnu`, `.gnuplot`, `.gp`, `.gpi`, `.plot` and `.plt`, the files `gnuplotrc`
+and `.gnuplot`, plus anything whose first line is a shebang naming gnuplot.
+
+`.gp` belongs to PARI/GP in the stock runtimes and is claimed here for gnuplot
+in both editors. `.pal` is deliberately left alone: palette files are a
+convention rather than a gnuplot-owned extension.
 
 Highlighting covers commands, set/show options and their suboptions, toggles,
 enumerated values, plot styles, plot-element modifiers, terminal names, the

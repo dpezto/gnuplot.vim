@@ -30,10 +30,12 @@ and for any file whose first line is a shebang naming gnuplot: >
 
     #!/usr/bin/env gnuplot
 
-Note that the stock Vim and Neovim runtimes claim `.gp` and `.gpi` for
-PARI/GP. Detection uses |:setf|, which does not override a filetype another
-runtime file already set, so on those two extensions whichever detection runs
-first wins.
+The stock runtimes assign `.gp` to PARI/GP. Since installing this plugin is a
+statement about what `.gp` means on your machine, it is claimed for gnuplot in
+both editors: Neovim registers through `vim.filetype.add()`, and Vim assigns
+the filetype outright, because |:setf| will not override one that is already
+set. Every other extension uses |:setf| and yields to anything that got there
+first.
 
 ==============================================================================
 3. HIGHLIGHT GROUPS                                           *gnuplot-groups*
