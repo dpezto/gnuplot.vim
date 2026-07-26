@@ -134,11 +134,26 @@ endfor
 " --- report -----------------------------------------------------------------
 " Vim in silent-ex mode (-es) discards :echo, so failures go to stderr, which
 " both editors pass through to the CI log.
+"
+" '/dev/stderr' is a Unix path, and there is no Windows equivalent writefile()
+" accepts: it fails with E482, which aborts this script before the quit below
+" and leaves a headless editor running until the six-hour job timeout. So the
+" write is Unix-only, and Windows falls back to :echomsg — the exit code is
+" what actually fails the job, the text is only there to say why.
+function! s:Report(lines) abort
+  if has('unix')
+    call writefile(a:lines, '/dev/stderr')
+  else
+    for l:line in a:lines
+      echomsg l:line
+    endfor
+  endif
+endfunction
+
 if empty(v:errors)
-  call writefile(['ok - all syntax assertions passed'], '/dev/stderr')
+  call s:Report(['ok - all syntax assertions passed'])
   qall!
 else
-  call writefile(v:errors + [printf('FAILED: %d assertion(s)', len(v:errors))],
-        \ '/dev/stderr')
+  call s:Report(v:errors + [printf('FAILED: %d assertion(s)', len(v:errors))])
   cquit!
 endif
