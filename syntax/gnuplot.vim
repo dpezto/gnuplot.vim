@@ -40,9 +40,16 @@ syn region  gnuplotString  start=+'+ end=+'+ contains=gnuplotFormat,@Spell
 " Datablocks ----------------------------------------------------------------
 " `$data << EOD ... EOD` — the terminator is user-chosen, so match the whole
 " block generically rather than pinning it to EOD.
-syn region  gnuplotDatablock matchgroup=gnuplotDatablockName
-      \ start="^\s*\$\h\w*\s*<<\s*\z(\h\w*\)" end="^\s*\z1\s*$"
+" Column references in a using spec (`using ($1+$2)`). Digits, so this can
+" never collide with the `$name` forms below.
+syn match   gnuplotColumnRef "\$\d\+"
+
+" The reference form (`plot $data`) is defined FIRST: when two items can start
+" at the same position Vim prefers the one defined later, so a trailing match
+" on `$name` would out-rank the region and stop it opening at all.
 syn match   gnuplotDatablockName "\$\h\w*"
+syn region  gnuplotDatablock matchgroup=gnuplotDatablockName contains=NONE
+      \ start="^\s*\$\h\w*\s*<<\s*\z(\h\w*\)" end="^\s*\z1\s*$"
 
 " Macros --------------------------------------------------------------------
 syn match   gnuplotMacro "@\h\w*"
@@ -76,7 +83,7 @@ syn match   gnuplotBuiltinFunction "\<\%(column\|columnhead\%(er\)\?\|stringcolu
 syn match   gnuplotBuiltinFunction "\<\%(time\%(column\)\?\|strftime\|strptime\|tm_\w\+\|weekdate_\%(iso\|cdc\)\)\ze("
 
 " Operators -----------------------------------------------------------------
-syn match   gnuplotOperator "[-+*/%^!~?:.]"
+syn match   gnuplotOperator "[-+*/%^!~?:.,]"
 syn match   gnuplotOperator "\*\*"
 syn match   gnuplotOperator "[=!<>]="
 syn match   gnuplotOperator "[<>]"
@@ -95,164 +102,153 @@ syn match   gnuplotShell "^\s*!.*$"
 " Groups are emitted in reverse-priority order: Vim resolves a keyword
 " defined twice to the last definition.
 
-syn keyword gnuplotValue acspline[s] all all[windows] anchor ansi ansi256
-syn keyword gnuplotValue ansirgb any avg axis ba[ckward] ba[se] base[line]
-syn keyword gnuplotValue bd[efault] beveled bezier big blacktext bo[th] brief
-syn keyword gnuplotValue butt button1 button2 button3 cartesian cauchy ccw
-syn keyword gnuplotValue classic clockwise close cnormal colortext colourtext
-syn keyword gnuplotValue columnsfirst context counterclockwise cp1250 cp1251
-syn keyword gnuplotValue cp1252 cp1254 cp4[37] cp850 cp852 cp950 cspline[s]
-syn keyword gnuplotValue cumulative cw cylindrical dashed day[s] def[aults]
-syn keyword gnuplotValue defaultplex downwards duplex dynamic eject empty eps
-syn keyword gnuplotValue errors expl[icit] fix fixed float fnormal fo[rward]
-syn keyword gnuplotValue fort[ran] frequency full fullwidth gauss geo[graphic]
-syn keyword gnuplotValue giant gnuplot gray hann hex hour[s] imp[licit]
-syn keyword gnuplotValue iso[_8859_1] iso_8859_15 iso_8859_2 iso_8859_9
-syn keyword gnuplotValue kdensity keep[fix] keypress koi8[r] koi8u landscape
-syn keyword gnuplotValue large latex level1 level3 leveldefault li[near]
-syn keyword gnuplotValue mcs[plines] medium minu[tes] mitered mon[ths] mono
-syn keyword gnuplotValue mpoints nodraw none nops_allcF normalpoints nounit
-syn keyword gnuplotValue numeric off off[set] on parallel path pdf pdftricks2
-syn keyword gnuplotValue perl perltkx pixels png podo poly[gon] portrait
-syn keyword gnuplotValue ps_allcF pstricks python results rexx round[ed]
-syn keyword gnuplotValue rowsfirst ruby sbezier script sec[onds] session
-syn keyword gnuplotValue simplex sj[is] small smallpoints solid spherical
-syn keyword gnuplotValue splines square sum swarm tcl tex texarrows texpoints
-syn keyword gnuplotValue texthidden textnormal textrigid textspecial time
-syn keyword gnuplotValue timedate tiny tinypoints trans[parent] trip undefined
-syn keyword gnuplotValue unique unit unwrap upwards utf[8] v4 v5 week[s] x0 x1
-syn keyword gnuplotValue xx xy xyz xz y0 y1 year[s] yy yz z0
+syn keyword gnuplotValue acsplines all allwindows anchor ansi ansi256 ansirgb
+syn keyword gnuplotValue any avg axis backward base baseline bdefault beveled
+syn keyword gnuplotValue bezier big blacktext both brief butt button1 button2
+syn keyword gnuplotValue button3 cartesian cauchy ccw classic clockwise close
+syn keyword gnuplotValue cnormal colortext colourtext columnsfirst context
+syn keyword gnuplotValue counterclockwise cp1250 cp1251 cp1252 cp1254 cp437
+syn keyword gnuplotValue cp850 cp852 cp950 csplines cumulative cw cylindrical
+syn keyword gnuplotValue dashed days defaultplex defaults downwards duplex
+syn keyword gnuplotValue dynamic eject empty eps errors explicit fix fixed
+syn keyword gnuplotValue float fnormal fortran forward frequency full
+syn keyword gnuplotValue fullwidth gauss geographic giant gnuplot gray hann
+syn keyword gnuplotValue hex hours implicit iso_8859_1 iso_8859_15 iso_8859_2
+syn keyword gnuplotValue iso_8859_9 kdensity keepfix keypress koi8r koi8u
+syn keyword gnuplotValue landscape large latex level1 level3 leveldefault
+syn keyword gnuplotValue linear mcsplines medium minutes mitered mono months
+syn keyword gnuplotValue mpoints nodraw none nooffset nops_allcF normalpoints
+syn keyword gnuplotValue nosquare notransparent noundefined nounit numeric off
+syn keyword gnuplotValue offset on parallel path pdf pdftricks2 perl perltkx
+syn keyword gnuplotValue pixels png podo polygon portrait ps_allcF pstricks
+syn keyword gnuplotValue python results rexx rounded rowsfirst ruby sbezier
+syn keyword gnuplotValue script seconds session simplex sjis small smallpoints
+syn keyword gnuplotValue solid spherical splines square sum swarm tcl tex
+syn keyword gnuplotValue texarrows texpoints texthidden textnormal textrigid
+syn keyword gnuplotValue textspecial time timedate tiny tinypoints trip
+syn keyword gnuplotValue undefined unique unit unwrap upwards utf8 v4 v5 weeks
+syn keyword gnuplotValue x0 x1 xx xy xyz xz y0 y1 years yy yz z0
 
-syn keyword gnuplotFlag alt[diagonal] antialias attributes auxfile ba[ck]
-syn keyword gnuplotFlag backhead backheads behind bent[over] box box[ed]
-syn keyword gnuplotFlag char[acter] clipcb columnhead[ers]
-syn keyword gnuplotFlag cov[ariancevariables] crop ctrl ctrlq depth[order]
-syn keyword gnuplotFlag enh[anced] equal err[orvariables] errors[caling]
-syn keyword gnuplotFlag ext[end] externalimages feed filled fir[st] fr[ont]
-syn keyword gnuplotFlag ftriangles fulldoc gparrows gppoints gr[aph] head
-syn keyword gnuplotFlag heads hypertext inlineimages inter[lace] interactive
-syn keyword gnuplotFlag inv[ert] light[ing] mi[rror] noalt[diagonal] noanimate
-syn keyword gnuplotFlag noantialias noattributes noauxfile nobent[over]
-syn keyword gnuplotFlag nobo[rder] nobox nobox[ed] noclipcb nocolumnhead[ers]
-syn keyword gnuplotFlag nocontours nocov[ariancevariables] nocrop noctrl
-syn keyword gnuplotFlag noctrlq noenh[anced] noequal noerr[orvariables]
-syn keyword gnuplotFlag noerrors[caling] noext[end] noexternalimages nofeed
-syn keyword gnuplotFlag nofilled nofpe_trap noftriangles nofulldoc nogparrows
-syn keyword gnuplotFlag nogppoints nogrid nohead noheads nohidden[3d]
-syn keyword gnuplotFlag nointer[lace] noinv[ert] nolight[ing] nolog[file]
-syn keyword gnuplotFlag nomi[rror] noopaque nooriginreset nooutl[iers]
-syn keyword gnuplotFlag nopersist nopicenvironment nopoint noprescale
-syn keyword gnuplotFlag noproportional nopspoints norange[limited]
-syn keyword gnuplotFlag noreplotonresize norev[erse] norot[ate] norottext
-syn keyword gnuplotFlag nostandalone nosurf[ace] notightboundingbox
-syn keyword gnuplotFlag notikzarrows notrue[color] nover[tical] nowe[dge]
-syn keyword gnuplotFlag nowri[teback] opaque originreset outl[iers] persist
-syn keyword gnuplotFlag picenvironment prescale psarrows pspoints
-syn keyword gnuplotFlag range[limited] replotonresize rev[erse] rot[ate]
-syn keyword gnuplotFlag rottext sc[reen] scroll sec[ond] standalone
-syn keyword gnuplotFlag tightboundingbox tikzarrows true[color] ver[tical]
-syn keyword gnuplotFlag we[dge] wri[teback]
+syn keyword gnuplotFlag altdiagonal antialias attributes auxfile back backhead
+syn keyword gnuplotFlag backheads behind bentover box boxed character clipcb
+syn keyword gnuplotFlag columnheaders covariancevariables crop ctrl ctrlq
+syn keyword gnuplotFlag depthorder enhanced equal errorscaling errorvariables
+syn keyword gnuplotFlag externalimages feed filled first front ftriangles
+syn keyword gnuplotFlag fulldoc gparrows gppoints graph head heads hypertext
+syn keyword gnuplotFlag inlineimages interactive interlace invert lighting
+syn keyword gnuplotFlag mirror noaltdiagonal noanimate noantialias
+syn keyword gnuplotFlag noattributes noauxfile nobentover noborder nobox
+syn keyword gnuplotFlag noboxed noclipcb nocolumnheaders nocontours
+syn keyword gnuplotFlag nocovariancevariables nocrop noctrl noctrlq noenhanced
+syn keyword gnuplotFlag noequal noerrorscaling noerrorvariables noextend
+syn keyword gnuplotFlag noexternalimages nofeed nofilled nofpe_trap
+syn keyword gnuplotFlag noftriangles nofulldoc nogparrows nogppoints nogrid
+syn keyword gnuplotFlag nohead noheads nohidden3d nointerlace noinvert
+syn keyword gnuplotFlag nolighting nologfile nomirror noopaque nooriginreset
+syn keyword gnuplotFlag nooutliers nopersist nopicenvironment nopoint
+syn keyword gnuplotFlag noprescale noproportional nopspoints norangelimited
+syn keyword gnuplotFlag noreplotonresize noreverse norotate norottext
+syn keyword gnuplotFlag nostandalone nosurface notightboundingbox notikzarrows
+syn keyword gnuplotFlag notruecolor novertical nowedge nowriteback opaque
+syn keyword gnuplotFlag originreset outliers persist picenvironment prescale
+syn keyword gnuplotFlag psarrows pspoints rangelimited replotonresize reverse
+syn keyword gnuplotFlag rotate rottext screen scroll second standalone
+syn keyword gnuplotFlag tightboundingbox tikzarrows truecolor vertical wedge
+syn keyword gnuplotFlag writeback
 
-syn keyword gnuplotOption Le[ft] Ri[ght] a[bsolute] a[utotitle] add an[gles]
-syn keyword gnuplotOption angle append arc arr[ow] arrowstyle as aspect at
-syn keyword gnuplotOption au[tojustify] auto auto[freq] auto[scale] azimuth
-syn keyword gnuplotOption b[ars] b[spline] bmar[gin] bor[der] bot[tom]
-syn keyword gnuplotOption box[width] boxdepth bs by c[ubicspline] cai[rolatex]
-syn keyword gnuplotOption can[vas] cbda[ta] cbdtic[s] cblab[el] cbmtic[s]
-syn keyword gnuplotOption cbran[ge] cbtic[s] center cg[m] charsize clip
-syn keyword gnuplotOption clust[ered] cntrl[abel] cntrp[aram] col[umnheader]
-syn keyword gnuplotOption color colorb[ox] colormap colorn[ames] colorsequence
-syn keyword gnuplotOption columns columns[tacked] conto[urs] contourfill
-syn keyword gnuplotOption cornerp[oles] cube[helix] cycle cycles d[egrees]
-syn keyword gnuplotOption dashl[ength] dasht[ype] dataf[ile] dec[imalsign]
-syn keyword gnuplotOption def[ault] def[ined] delay dg[rid3d] discrete dl
-syn keyword gnuplotOption do[mterm] doub[leclick] dt du[mb] du[mmy] dx[f]
-syn keyword gnuplotOption e[pscairo] em[f] enc[oding] epsl[atex] errorbars
-syn keyword gnuplotOption f[ig] fc file fill[style] fillc[olor] fillchar
-syn keyword gnuplotOption first[linetype] fit2rgb[formulae] flush font
-syn keyword gnuplotOption fontscale fontsize form[at] fraction from fs fsize
-syn keyword gnuplotOption fun[ctions] g[if] gamma gap gr[id] grad[ient] h[pgl]
-syn keyword gnuplotOption header height hid[den3d] hor[izontal] in[cremental]
-syn keyword gnuplotOption ins[ide] inside[color] interv[al] iso[samples]
-syn keyword gnuplotOption isosurf[ace] isotropic j[peg] jitter jsdir k[ey]
-syn keyword gnuplotOption keyw[idth] kit[tycairo] kittyg[d] l[ua] lab[el]
-syn keyword gnuplotOption layerd[efault] lc le[vels] lef[t] limit limit_abs
-syn keyword gnuplotOption linec[olor] lines[tyle] linetype linew[idth] link
-syn keyword gnuplotOption lmar[gin] load[path] locale log[scale] logf[ile]
-syn keyword gnuplotOption loop ls lt lw map map[ping] mar[gins] maxc[olors]
-syn keyword gnuplotOption maxcol[s] maxiter maxrow[s] mcbtic[s]
-syn keyword gnuplotOption medianlinewidth micro minus[sign] mix[ed] mo[use]
-syn keyword gnuplotOption mono[chrome] mouseformat mrtic[s] mttic[s]
-syn keyword gnuplotOption multi[plot] mutic[s] mvtic[s] mvxtic[s] mvytic[s]
-syn keyword gnuplotOption mvztic[s] mx2tic[s] mxtic[s] mxytic[s] my2tic[s]
-syn keyword gnuplotOption mytic[s] mztic[s] neg[ative] new noa[utotitle]
-syn keyword gnuplotOption nodoub[leclick] noheader noinside[color]
-syn keyword gnuplotOption nokey[separators] nologf[ile] nonli[near]
-syn keyword gnuplotOption nopolardistance nopolardistancedeg
-syn keyword gnuplotOption nopolardistancetan nora[tio] noruler nover[bose]
-syn keyword gnuplotOption nozoomco[ordinates] nozoomj[ump] num[bers] o[ne]
-syn keyword gnuplotOption o[rder] o[utput] obj[ect] off[sets] onecolor
-syn keyword gnuplotOption or[igin] outs[ide] over[lap] overflow pa[rametric]
-syn keyword gnuplotOption pal[ette] palfuncparam paxis pc[l5] pd[fcairo] pi
-syn keyword gnuplotOption pi[ct2e] pixm[ap] plotsize pm3d pn pngc[airo]
-syn keyword gnuplotOption po[stscript] poi[ntsize] point pointi[nterval]
-syn keyword gnuplotOption pointint[ervalbox] pointn[umber] pointscale
-syn keyword gnuplotOption pointsmax pointt[ype] pol[ar] polardistance
-syn keyword gnuplotOption polardistancedeg polardistancetan pos[itive]
-syn keyword gnuplotOption projection psdir psl[atex] pste[x] pt q[t] qnorm
-syn keyword gnuplotOption quality quiet r[adial] r[adians] r[elative] ra[tio]
-syn keyword gnuplotOption ra[xis] rad[ius] range rda[ta] rdtic[s] resolution
-syn keyword gnuplotOption rgb[formulae] rgbmax rig[ht] rlab[el] rmar[gin]
-syn keyword gnuplotOption rmtic[s] rows[tacked] rran[ge] rtic[s] rto ruler
-syn keyword gnuplotOption s[ixelgd] sam[ples] samplen saturation scale
-syn keyword gnuplotOption separation si[ze] sorted sp[acing] spider[plot]
-syn keyword gnuplotOption spot[light] spread st[yle] start su[rface] sv[g]
-syn keyword gnuplotOption t[erminal] t[wo] ta[ble] tc tda[ta] tdtic[s]
-syn keyword gnuplotOption tek40[xx] tek41[0x] termoption tex[draw] textc[olor]
-syn keyword gnuplotOption theta ti[kz] tic[s] timef[mt] times[tamp] tit[le]
-syn keyword gnuplotOption tk[canvas] tlab[el] tmar[gin] tmtic[s] to to[p]
-syn keyword gnuplotOption tran[ge] triang[les] trianglepattern ttic[s]
-syn keyword gnuplotOption u[nknown] u[ser] uda[ta] udtic[s] ulab[el] umtic[s]
-syn keyword gnuplotOption units unsorted uran[ge] utic[s] v[ariables] v[ttek]
-syn keyword gnuplotOption vda[ta] vdtic[s] ve[rsion] ver[bose] vgrid vi[ew]
-syn keyword gnuplotOption vlab[el] vmtic[s] vran[ge] vtic[s] vxda[ta]
-syn keyword gnuplotOption vxdtic[s] vxlab[el] vxmtic[s] vxran[ge] vxtic[s]
-syn keyword gnuplotOption vyda[ta] vydtic[s] vylab[el] vymtic[s] vyran[ge]
-syn keyword gnuplotOption vytic[s] vzda[ta] vzdtic[s] vzlab[el] vzmtic[s]
-syn keyword gnuplotOption vzran[ge] vztic[s] w[ebp] wall[s] wid[th] window
-syn keyword gnuplotOption wrap wx[t] x2da[ta] x2dtic[s] x2lab[el] x2mtic[s]
-syn keyword gnuplotOption x2ran[ge] x2tic[s] x2zeroa[xis] x[11] xda[ta]
-syn keyword gnuplotOption xdtic[s] xlab[el] xmtic[s] xran[ge] xt[erm] xtic[s]
-syn keyword gnuplotOption xyda[ta] xydtic[s] xylab[el] xymtic[s] xyp[lane]
-syn keyword gnuplotOption xyran[ge] xytic[s] xzeroa[xis] y2da[ta] y2dtic[s]
-syn keyword gnuplotOption y2lab[el] y2mtic[s] y2ran[ge] y2tic[s] y2zeroa[xis]
-syn keyword gnuplotOption yda[ta] ydtic[s] ylab[el] ymtic[s] yran[ge] ytic[s]
-syn keyword gnuplotOption yzeroa[xis] z[ero] zda[ta] zdtic[s] zeroa[xis]
-syn keyword gnuplotOption zlab[el] zmtic[s] zoomco[ordinates] zoomfa[ctors]
-syn keyword gnuplotOption zoomj[ump] zran[ge] ztic[s] zzeroa[xis]
+syn keyword gnuplotOption Left Right absolute add angle angles append arc
+syn keyword gnuplotOption arrow arrowstyle as aspect at auto autofreq
+syn keyword gnuplotOption autojustify autoscale autotitle azimuth bars bmargin
+syn keyword gnuplotOption border bottom boxdepth boxwidth bs bspline by
+syn keyword gnuplotOption cairolatex canvas cbdata cbdtics cblabel cbmtics
+syn keyword gnuplotOption cbrange cbtics center cgm charsize clip clustered
+syn keyword gnuplotOption cntrlabel cntrparam color colorbox colormap
+syn keyword gnuplotOption colornames colorsequence columnheader columns
+syn keyword gnuplotOption columnstacked contourfill contours cornerpoles
+syn keyword gnuplotOption cubehelix cubicspline cycle cycles dashlength
+syn keyword gnuplotOption dashtype datafile decimalsign default defined
+syn keyword gnuplotOption degrees delay dgrid3d discrete dl domterm
+syn keyword gnuplotOption doubleclick dt dumb dummy dxf emf encoding epscairo
+syn keyword gnuplotOption epslatex errorbars fc fig file fillchar fillcolor
+syn keyword gnuplotOption fillstyle firstlinetype fit2rgbformulae flush font
+syn keyword gnuplotOption fontscale fontsize format fraction from fs fsize
+syn keyword gnuplotOption functions gamma gap gif gradient grid header height
+syn keyword gnuplotOption hidden3d horizontal hpgl incremental inside
+syn keyword gnuplotOption insidecolor interval isosamples isosurface isotropic
+syn keyword gnuplotOption jitter jpeg jsdir key keywidth kittycairo kittygd
+syn keyword gnuplotOption label layerdefault lc left levels limit limit_abs
+syn keyword gnuplotOption linecolor linestyle linetype linewidth link lmargin
+syn keyword gnuplotOption loadpath locale logfile logscale loop ls lt lua lw
+syn keyword gnuplotOption map mapping margins maxcolors maxcols maxiter
+syn keyword gnuplotOption maxrows mcbtics medianlinewidth micro minussign
+syn keyword gnuplotOption mixed monochrome mouse mouseformat mrtics mttics
+syn keyword gnuplotOption multiplot mutics mvtics mvxtics mvytics mvztics
+syn keyword gnuplotOption mx2tics mxtics mxytics my2tics mytics mztics
+syn keyword gnuplotOption negative new noautotitle noborder noclip
+syn keyword gnuplotOption nodoubleclick noheader nohidden3d noinsidecolor
+syn keyword gnuplotOption nokeyseparators nolink nologfile nologscale
+syn keyword gnuplotOption nonlinear noo[utput] nopolar nopolardistance
+syn keyword gnuplotOption nopolardistancedeg nopolardistancetan noratio
+syn keyword gnuplotOption noruler notimestamp notit[le] noverbose
+syn keyword gnuplotOption nozoomcoordinates nozoomjump numbers o[utput] object
+syn keyword gnuplotOption offsets one onecolor order origin outside overflow
+syn keyword gnuplotOption overlap palette palfuncparam parametric paxis pcl5
+syn keyword gnuplotOption pdfcairo pi pict2e pixmap plotsize pm3d pn pngcairo
+syn keyword gnuplotOption point pointinterval pointintervalbox pointnumber
+syn keyword gnuplotOption pointscale pointsize pointsmax pointtype polar
+syn keyword gnuplotOption polardistance polardistancedeg polardistancetan
+syn keyword gnuplotOption positive postscript projection ps psdir pslatex
+syn keyword gnuplotOption pstex pt qnorm qt quality quiet radial radians
+syn keyword gnuplotOption radius range ratio raxis rdata rdtics relative
+syn keyword gnuplotOption resolution rgbformulae rgbmax right rlabel rmargin
+syn keyword gnuplotOption rmtics rowstacked rrange rtics rto ruler samplen
+syn keyword gnuplotOption samples saturation scale separation sixelgd size
+syn keyword gnuplotOption sorted spacing spiderplot spotlight spread style
+syn keyword gnuplotOption surface svg t[erminal] table tc tdata tdtics tek40xx
+syn keyword gnuplotOption tek410x termoption texdraw textcolor theta tics tikz
+syn keyword gnuplotOption timefmt timestamp tit[le] tkcanvas tlabel tmargin
+syn keyword gnuplotOption tmtics to top trange trianglepattern triangles ttics
+syn keyword gnuplotOption two udata udtics ulabel umtics units unknown
+syn keyword gnuplotOption unsorted urange user utics variables vdata vdtics
+syn keyword gnuplotOption verbose version vgrid view vlabel vmtics vrange
+syn keyword gnuplotOption vtics vttek vxdata vxdtics vxlabel vxmtics vxrange
+syn keyword gnuplotOption vxtics vydata vydtics vylabel vymtics vyrange vytics
+syn keyword gnuplotOption vzdata vzdtics vzlabel vzmtics vzrange vztics walls
+syn keyword gnuplotOption webp width window wrap wxt x11 x2data x2dtics
+syn keyword gnuplotOption x2label x2mtics x2range x2tics x2zeroaxis xdata
+syn keyword gnuplotOption xdtics xlabel xmtics xrange xterm xtics xydata
+syn keyword gnuplotOption xydtics xylabel xymtics xyplane xyrange xytics
+syn keyword gnuplotOption xzeroaxis y2data y2dtics y2label y2mtics y2range
+syn keyword gnuplotOption y2tics y2zeroaxis ydata ydtics ylabel ymtics yrange
+syn keyword gnuplotOption ytics yzeroaxis zdata zdtics zero zeroaxis zlabel
+syn keyword gnuplotOption zmtics zoomcoordinates zoomfactors zoomjump zrange
+syn keyword gnuplotOption ztics zzeroaxis
 
-syn keyword gnuplotStyle arr[ows] boxerrorbars boxes boxplot boxxyerror
-syn keyword gnuplotStyle candlesticks circ[le] circles d[ata] d[ots] ell[ipse]
-syn keyword gnuplotStyle ellipses errorl[ines] f[unction] filledc[urves]
-syn keyword gnuplotStyle fillsteps fin[ancebars] fsteps hist[ogram]
-syn keyword gnuplotStyle hist[ograms] histeps hs[teps] i[mpulses] ima[ge]
-syn keyword gnuplotStyle l[ine] l[ines] lab[els] linesp[oints] lp mask
-syn keyword gnuplotStyle p[oints] parallel[axis] parallelaxes polygons
-syn keyword gnuplotStyle rect[angle] rgbalpha rgbimage sec[tors] st[eps]
-syn keyword gnuplotStyle textbox vec[tors] watch[point] xerrorbar[s]
-syn keyword gnuplotStyle xerrorlines xyerrorbar[s] xyerrorlines yerrorbar[s]
-syn keyword gnuplotStyle yerrorlines zerror[fill]
+syn keyword gnuplotStyle arrows boxerrorbars boxes boxplot boxxyerror
+syn keyword gnuplotStyle candlesticks circle circles data dots ellipse
+syn keyword gnuplotStyle ellipses errorlines filledcurves fillsteps
+syn keyword gnuplotStyle financebars fsteps function histeps histogram
+syn keyword gnuplotStyle histograms hsteps image impulses l[ines] labels line
+syn keyword gnuplotStyle linesp[oints] lp mask nolabels p[oints] parallelaxes
+syn keyword gnuplotStyle parallelaxis polygons rectangle rgbalpha rgbimage
+syn keyword gnuplotStyle sectors steps textbox vectors watchpoint xerrorbars
+syn keyword gnuplotStyle xerrorlines xyerrorbars xyerrorlines yerrorbars
+syn keyword gnuplotStyle yerrorlines zerrorfill
 
-syn keyword gnuplotAttribute axes binrange bins binvalue binwidth every
-syn keyword gnuplotAttribute i[ndex] if not[itle] perpendicular scan smooth
-syn keyword gnuplotAttribute u[sing] w[ith] watch
+syn keyword gnuplotAttribute axes binrange bins binvalue binwidth every if
+syn keyword gnuplotAttribute index not[itle] perpendicular scan smooth u[sing]
+syn keyword gnuplotAttribute w[ith] watch
 
-syn keyword gnuplotCommand bind break call cd cl[ear] continue eval[uate]
-syn keyword gnuplotCommand ex[it] f[it] he[lp] hist[ory] import l[oad] low[er]
-syn keyword gnuplotCommand p[lot] pa[use] pr[int] printerr[or] pwd q[uit]
-syn keyword gnuplotCommand ra[ise] ref[resh] remulti[plot] rep[lot] reread
-syn keyword gnuplotCommand reset sa[ve] se[t] sh[ow] sp[lot] stats test toggle
-syn keyword gnuplotCommand und[efine] uns[et] vclear warn
+syn keyword gnuplotCommand bind break call cd clear continue evaluate exit fit
+syn keyword gnuplotCommand help history import load lower noraise p[lot] pause
+syn keyword gnuplotCommand print printerror pwd quit raise refresh remultiplot
+syn keyword gnuplotCommand rep[lot] reread reset save set show sp[lot] stats
+syn keyword gnuplotCommand test toggle undefine unset vclear warn
+
+" Spelled like :syn arguments, so these cannot be keywords.
+syn match gnuplotFlag "\<extend\>"
+syn match gnuplotOption "\<start\>"
+syn match gnuplotValue "\<transparent\>"
 " <<< end generated block
 
 " Built-in constants --------------------------------------------------------
@@ -264,8 +260,16 @@ syn keyword gnuplotConstant pi NaN Inf
 " keywords.json only covers tokens the grammar resolves through its scanner
 " tiers. A handful of words are plain literals in the grammar instead, so they
 " are listed here by hand.
+" Values
 syn keyword gnuplotValue  whitespace tab comma
-syn keyword gnuplotOption binary matrix
+syn keyword gnuplotValue  above below closed between
+" Sub-keywords the grammar spells as self-named key() aliases, which its
+" dictionary generator skips on purpose because the parse tables already
+" describe them. They still need naming here.
+syn keyword gnuplotOption binary matrix separator via name nooutput
+syn keyword gnuplotOption background rgbcolor rgb fill func[tion] increment
+syn keyword gnuplotOption defined maxcolors gamma
+syn keyword gnuplotCommand shell
 
 " Control flow --------------------------------------------------------------
 " These are plain literals in the grammar rather than tier keywords, so they do
@@ -289,6 +293,7 @@ hi def link gnuplotEscape          SpecialChar
 hi def link gnuplotFormat          SpecialChar
 hi def link gnuplotDatablock       String
 hi def link gnuplotDatablockName   Label
+hi def link gnuplotColumnRef       Special
 hi def link gnuplotMacro           Macro
 hi def link gnuplotNumber          Number
 hi def link gnuplotConstant        Constant

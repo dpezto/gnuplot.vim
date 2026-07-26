@@ -75,9 +75,37 @@ const PRIORITY = [
 // The table stores `min <= 0` as "full word minus |min|".
 const effMin = (e) => (e.min <= 0 ? e.kw.length + e.min : e.min);
 
-// "xrange" with a minimum of 2 becomes `xr[ange]`; a keyword that takes no
-// abbreviation is emitted bare.
+// Keywords allowed to appear abbreviated.
+//
+// gnuplot lets almost every keyword be shortened, but Vim keywords carry no
+// context, so honouring all of them means a bare `a`, `h`, `i`, `x` or `w`
+// lights up as a keyword wherever it appears — including `a = 42` and a loop
+// variable. Fifty-one keywords reduce to a single letter, which is most of the
+// alphabet.
+//
+// So abbreviations are opt-in, and the list is deliberately short: the forms
+// that are near-universal in real gnuplot scripts. Everything else is matched
+// as a whole word only. `lines`/`points`/`linespoints` are here because `w l`
+// and `w lp` are inseparable from `with`.
+const ABBREVIATED = new Set([
+  "plot",
+  "splot",
+  "replot",
+  "terminal",
+  "output",
+  "using",
+  "with",
+  "title",
+  "notitle",
+  "lines",
+  "points",
+  "linespoints",
+]);
+
+// "xrange" with a minimum of 2 becomes `xr[ange]`, but only for a keyword on
+// the allowlist; everything else is emitted whole.
 function form(word, min) {
+  if (!ABBREVIATED.has(word)) return word;
   const m = Math.max(1, Math.min(min, word.length));
   return m >= word.length ? word : `${word.slice(0, m)}[${word.slice(m)}]`;
 }
@@ -85,11 +113,19 @@ function form(word, min) {
 function build() {
   const { keywords } = JSON.parse(readFileSync(join(root, "keywords.json"), "utf8"));
 
-  // resolve each word to a single tier
+  // Resolve each word to a single tier, but merge `alt` and `no` across every
+  // entry for that word: `pointsize` is both a set/show option head and a style
+  // attribute, and only the latter carries the `ps` spelling. Picking one entry
+  // and reading its fields alone silently drops the short form.
   const chosen = new Map();
   for (const e of keywords) {
     const prev = chosen.get(e.kw);
-    if (!prev || PRIORITY.indexOf(e.tier) < PRIORITY.indexOf(prev.tier)) chosen.set(e.kw, e);
+    if (!prev || PRIORITY.indexOf(e.tier) < PRIORITY.indexOf(prev.tier)) {
+      chosen.set(e.kw, { ...e, alt: e.alt ?? prev?.alt, no: e.no ?? prev?.no });
+    } else {
+      prev.alt = prev.alt ?? e.alt;
+      prev.no = prev.no ?? e.no;
+    }
   }
 
   const buckets = new Map();
@@ -124,6 +160,27 @@ function build() {
     (x, y) => ORDER.indexOf(x) - ORDER.indexOf(y)
   );
 
+  // Vim parses trailing words on a `:syn keyword` line as syntax ARGUMENTS, so
+  // a keyword that happens to be spelled like one is silently swallowed and
+  // never registers. gnuplot has three: `extend` (set xrange noextend),
+  // `transparent` (fillstyle) and `start` (palette cubehelix). They are emitted
+  // as matches instead, which has no such parsing quirk.
+  const RESERVED = new Set([
+    "cchar", "conceal", "concealends", "contained", "containedin", "contains",
+    "display", "excludenl", "extend", "fold", "keepend", "matchgroup",
+    "nextgroup", "oneline", "skip", "skipempty", "skipnl", "skipwhite",
+    "transparent", "end", "start",
+  ]);
+  const matches = [];
+  for (const [group, set] of buckets) {
+    for (const w of [...set]) {
+      if (RESERVED.has(w)) {
+        set.delete(w);
+        matches.push(`syn match ${group} "\\<${w}\\>"`);
+      }
+    }
+  }
+
   const lines = [BEGIN];
   lines.push(
     `" ${chosen.size} keywords across ${buckets.size} groups. Regenerate with`,
@@ -143,6 +200,11 @@ function build() {
       line += ` ${w}`;
     }
     if (line.trim()) lines.push(line);
+  }
+  if (matches.length) {
+    lines.push("");
+    lines.push('" Spelled like :syn arguments, so these cannot be keywords.');
+    lines.push(...matches.sort());
   }
   lines.push(END);
   return lines.join("\n");

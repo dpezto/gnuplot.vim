@@ -39,17 +39,34 @@ endfunction
 call s:Word('plot sin(x)', 'plot', 'gnuplotCommand')
 call s:Word('p sin(x)', 'p', 'gnuplotCommand')
 call s:Word('set xrange [0:1]', 'set', 'gnuplotCommand')
-call s:Word('se xrange [0:1]', 'se', 'gnuplotCommand')
+" `set` is not on the abbreviation allowlist, so only the full word matches.
+call s:Word('sp x*y', 'sp', 'gnuplotCommand')
 call s:Word('splot x*y', 'splot', 'gnuplotCommand')
 call s:Word('unset key', 'unset', 'gnuplotCommand')
 
 " --- abbreviations carry over from the grammar's min_chars ------------------
 call s:Word('set xrange [0:1]', 'xrange', 'gnuplotOption')
-" `xran` and not `xr`: the dictionary declares xrange with a minimum of 4.
-" gnuplot itself accepts `set xr`, so this asserts what the generated file
-" currently says rather than what gnuplot allows — see README, Known limits.
-call s:Word('set xran [0:1]', 'xran', 'gnuplotOption')
+" Abbreviations are opt-in; xrange is not on the allowlist, so the whole word
+" is required even though gnuplot accepts `set xr`.
+call s:Word('set xrange [0:1]', 'xrange', 'gnuplotOption')
+call s:Word('plot x u 1:2 w l', 'u', 'gnuplotAttribute')
+call s:Word('plot x u 1:2 w l', 'w', 'gnuplotAttribute')
+call s:Word('set terminal png', 'terminal', 'gnuplotOption')
+" An ordinary variable must NOT read as a keyword. This is what the
+" abbreviation allowlist buys: with every gnuplot abbreviation honoured, most
+" single letters are keywords and `a = 42` lights up.
+call s:Word('alpha = 42', 'alpha', '')
+call s:Word('i = 3', 'i', '')
 call s:Word('set termi png', 'termi', 'gnuplotOption')
+
+" Words spelled like :syn arguments cannot be keywords; they are emitted as
+" matches instead. Without that they register as nothing at all.
+call s:Word('set style fill transparent solid 0.3', 'transparent', 'gnuplotValue')
+call s:Word('set xrange [0:1] noextend', 'noextend', 'gnuplotFlag')
+call s:Word('set palette cubehelix start 1', 'start', 'gnuplotOption')
+
+" datablock contents are inert
+call s:Word('$d << EOD', '$d', 'gnuplotDatablockName')
 call s:Word('set key noautotitle', 'noautotitle', 'gnuplotOption')
 
 " --- tiers ------------------------------------------------------------------
@@ -80,14 +97,22 @@ call s:Word('do for [i=1:10] { print i }', 'do', 'gnuplotRepeat')
 call s:Word('do for [i=1:10] { print i }', 'for', 'gnuplotRepeat')
 
 " --- filetype detection -----------------------------------------------------
-" Extensions Vim/Neovim do not already claim for another language (.gp and
-" .gpi belong to PARI/GP in the stock runtime, so they are left alone).
-for s:name in ['t.plt', 't.gnu', 't.gnuplot', 't.plot', 't.pal']
+" `.pal` is deliberately not claimed: palette files are a convention, not a
+" gnuplot-owned extension. `.gp` belongs to PARI/GP in the stock runtime, which
+" is why Neovim detection goes through vim.filetype.add() (see
+" ftdetect/gnuplot.lua) rather than a :setfiletype autocmd.
+for s:name in ['t.plt', 't.plot', 't.gnu', 't.gp', 't.gpi', 't.gnuplot',
+      \ 'gnuplotrc', '.gnuplot']
   execute 'enew!'
   execute 'file ' . s:name
   doautocmd BufRead
   call assert_equal('gnuplot', &filetype, 'ftdetect ' . s:name)
 endfor
+
+enew!
+file t.pal
+doautocmd BufRead
+call assert_notequal('gnuplot', &filetype, 'ftdetect must not claim .pal')
 
 " --- report -----------------------------------------------------------------
 if empty(v:errors)
