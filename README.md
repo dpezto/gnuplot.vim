@@ -1,5 +1,9 @@
 # gnuplot.vim
 
+[![ci](https://img.shields.io/github/actions/workflow/status/dpezto/gnuplot.vim/ci.yml?branch=main&label=ci)](https://github.com/dpezto/gnuplot.vim/actions/workflows/ci.yml)
+[![codecov](https://img.shields.io/codecov/c/github/dpezto/gnuplot.vim)](https://codecov.io/gh/dpezto/gnuplot.vim)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
+
 Syntax highlighting for [gnuplot](http://www.gnuplot.info) 6 scripts.
 
 The keyword lists are generated from `keywords.json`, a pinned copy of the
@@ -90,12 +94,6 @@ machine written; the rest of the file is hand maintained.
 New keywords arrive on their own: a weekly job compares the vendored
 `keywords.json` against tree-sitter-gnuplot and opens a PR when it has moved,
 regenerating the syntax file with it.
-
-## Citation
-
-`CITATION.cff` carries the current version and release date. Both are written
-by release-please, so a `Cite this repository` on GitHub always matches the
-latest tag.
 
 ## Credits
 
