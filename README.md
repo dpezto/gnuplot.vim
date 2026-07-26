@@ -1,84 +1,108 @@
-# Gnuplot syntax highlighting for Vim
-[![PRs Welcome][prs-badge]](https://makeapullrequest.com)
+# gnuplot.vim
 
-I built this package from the ground up as a follow up to the work made by [James Eberle](https://www.vim.org/scripts/script.php?script_id=1737) and [Andrew Rasmussen](https://www.vim.org/scripts/script.php?script_id=4873).
+Syntax highlighting for [gnuplot](http://www.gnuplot.info) 6 scripts.
 
-## Notice
-The aim of this package is to provide up-to-date support for gnuplot syntax. I'm basing the support for gnuplot 5.5 which is currently in development.
+The keyword lists are generated from `keywords.json`, a pinned copy of the
+dictionary emitted by the
+[tree-sitter-gnuplot](https://github.com/dpezto/tree-sitter-gnuplot) grammar,
+so both projects recognise the same words with the same abbreviation rules.
 
-## Installation
+## Install
 
-### Using a plugin manager
-This plugin follows the standard runtime path structure, and as such it can be installed with a variety of plugin managers:
+Standard runtime path layout, so any plugin manager works:
 
-| Plugin Manager | Install with... |
-| ------------- | ------------- |
-| [Pathogen][1] | `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/bundle/gnuplot` |
-| [Vundle][2] | `Plugin 'dpezto/gnuplot.vim'` |
-| [Plug][3] | `Plug 'dpezto/gnuplot.vim'` |
-| [minpac][4] | `call minpac#add('dpezto/gnuplot.vim')` |
-| pack feature (native Vim 8 package feature)| `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/pack/plugins/start/gnuplot` |
+| Manager | Install with |
+| --- | --- |
+| [lazy.nvim](https://github.com/folke/lazy.nvim) | `{ "dpezto/gnuplot.vim" }` |
+| [vim-plug](https://github.com/junegunn/vim-plug) | `Plug 'dpezto/gnuplot.vim'` |
+| [Vundle](https://github.com/VundleVim/Vundle.vim) | `Plugin 'dpezto/gnuplot.vim'` |
+| [minpac](https://github.com/k-takata/minpac) | `call minpac#add('dpezto/gnuplot.vim')` |
+| [pathogen](https://github.com/tpope/vim-pathogen) | `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/bundle/gnuplot` |
+| native packages | `git clone https://github.com/dpezto/gnuplot.vim ~/.vim/pack/plugins/start/gnuplot` |
 
-### Manual installation
-In order to have vim automatically detect gnuplot files, you need to have
-[`ftplugins`](http://vimhelp.appspot.com/usr_05.txt.html#ftplugins) enabled (e.g. by having this line in your [`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc) file:
+No configuration is needed. `:help gnuplot` documents the highlight groups.
 
-```vim
-:filetype plugin on
+## What it recognises
+
+`.gnu`, `.gnuplot`, `.gpi`, `.plot` and `.plt`, the files `gnuplotrc` and
+`.gnuplot`, plus anything whose first line is a shebang naming gnuplot.
+
+`.gp` is left to PARI/GP, which owns it in the stock Vim and Neovim runtimes.
+
+Highlighting covers commands, set/show options and their suboptions, toggles,
+enumerated values, plot styles, plot-element modifiers, terminal names, the
+built-in function and variable sets, datablocks, macros, numbers with unit
+suffixes, and both string flavours.
+
+### Abbreviations
+
+gnuplot lets most keywords be shortened, and the generated lists spell that as
+`p[lot]` — `:syn-keyword`'s own notation for an optional tail — so an
+abbreviation costs no regular expression at all. Which keywords may appear
+short is a deliberate choice rather than the full set; see
+[Known limits](#known-limits).
+
+## Colours match the tree-sitter grammar
+
+Under Neovim the syntax groups link to the same treesitter captures that
+[tree-sitter-gnuplot](https://github.com/dpezto/tree-sitter-gnuplot) uses in its
+`highlights.scm` — `@keyword` for a command verb, `@variable.member` for an
+option or suboption, `@keyword.directive` for a toggle, `@constant` for an
+enumerated value, `@property` for a plot-element modifier, `@attribute` for a
+plot style. A buffer highlighted by this plugin and one highlighted by the
+grammar therefore pick up identical colours from the colorscheme. Measured over
+a representative script, the two agree on **92.5%** of the characters they both
+highlight; the remainder is listed below.
+
+Neovim ships default highlights for every standard capture, so this holds even
+without a treesitter parser installed. Under Vim, which has no such groups, the
+links fall back to the standard ones (`Statement`, `Identifier`, `PreProc`, …).
+
+## Known limits
+
+Vim keywords carry no context, so a word meaning two things in gnuplot gets one
+colour. `p` starts a plot command and also names the `points` style; the command
+wins. `f` is the `fit` command, so in `f(x) = x**2` the `f` reads as a command
+rather than a function definition.
+
+Abbreviations are opt-in. Honouring every one of gnuplot's would make most
+single letters keywords — fifty-one reduce to one character — so `a = 42` and a
+loop counter would light up. Only the forms that are near-universal are
+abbreviated: `plot`, `splot`, `replot`, `terminal`, `output`, `using`, `with`,
+`title`, `notitle` and the three `with` values. Everything else needs its whole
+word, which is why `set xr` is not highlighted.
+
+Two deliberate differences from the grammar: a datablock body is inert here
+(the grammar highlights its contents), and `!` marks only the shell escape
+itself, since Vim cannot inject bash into the rest of the line.
+
+## Development
+
+```sh
+npm run gen:syntax                          # regenerate from keywords.json
+npm run check:syntax                        # fail if the committed file is stale
+nvim --headless -u NONE -S tests/run.vim    # run the assertions
 ```
 
-The plugin already sets up some logic to detect gnuplot files. In order that the
-gnuplot filetype plugin is loaded correctly, vim needs to be enabled to load
-[`filetype-plugins`](http://vimhelp.appspot.com/filetype.txt.html#filetype-plugins). This can be ensured by putting a line like this in your
-[`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc):
+Only the block between the generated markers in `syntax/gnuplot.vim` is
+machine written; the rest of the file is hand maintained.
 
-```vim
-:filetype plugin on
-```
-(see also [:filetype-plugin-on](http://vimhelp.appspot.com/filetype.txt.html#:filetype-plugin-on)).
+New keywords arrive on their own: a weekly job compares the vendored
+`keywords.json` against tree-sitter-gnuplot and opens a PR when it has moved,
+regenerating the syntax file with it.
 
-In case this did not work, you need to setup vim like this:
+## Citation
 
-To have Vim automatically detect gnuplot files, you need to do the following.
+`CITATION.cff` carries the current version and release date. Both are written
+by release-please, so a `Cite this repository` on GitHub always matches the
+latest tag.
 
-1. Create your user runtime directory if you do not have one yet. This
-	  directory needs to be in your 'runtime' path. In Unix this would
-	  typically the ~/.vim directory, while in Windows this is usually your
-	  ~/vimfiles directory. Use :echo expand("~") to find out, what Vim thinks
-	  your user directory is.
-	  To create this directory, you can do:
-    ```vim
-    :!mkdir ~/.vim
-    ```
-    for Unix and
-    ```vim
-    :!mkdir ~/vimfiles
-    ```
-    for Windows.
+## Credits
 
-2. In that directory you create a file that will detect gnuplot files.
-```vim
-if exists("did_load_filetypes")
-  finish
-endif
-augroup filetypedetect
-au! BufNewFile,BufRead *.plt,*.plot,*.gnuplot,*.gnu,*.gp setf gnuplot
-augroup END
-```
+A ground-up rewrite following earlier work by
+[James Eberle](https://www.vim.org/scripts/script.php?script_id=1737) and
+[Andrew Rasmussen](https://www.vim.org/scripts/script.php?script_id=4873).
 
-You save this file as "filetype.vim" in your user runtime diretory:
-```vim
-:w ~/.vim/filetype.vim
-```
+## License
 
-3. To be able to use your new filetype.vim detection, you need to restart Vim. Vim will then load the gnuplot filetype plugin for all files whose names end with .plt, .plot, .gnuplot, .gnu, .gp.
-
-## Status
-This began as a personal project since I prefer the results of the plots made with gnuplot, so most of the syntax currently in the file is for my use case. Despite this, the package can handle almost all use cases of gnuplot. I'm looking forward to refine the syntax highlighting.
-
-[prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJzdmcyIiB3aWR0aD0iNjQ1IiBoZWlnaHQ9IjU4NSIgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPiA8ZyBpZD0ibGF5ZXIxIj4gIDxwYXRoIGlkPSJwYXRoMjQxNyIgZD0ibTI5Ny4zIDU1MC44N2MtMTMuNzc1LTE1LjQzNi00OC4xNzEtNDUuNTMtNzYuNDM1LTY2Ljg3NC04My43NDQtNjMuMjQyLTk1LjE0Mi03Mi4zOTQtMTI5LjE0LTEwMy43LTYyLjY4NS01Ny43Mi04OS4zMDYtMTE1LjcxLTg5LjIxNC0xOTQuMzQgMC4wNDQ1MTItMzguMzg0IDIuNjYwOC01My4xNzIgMTMuNDEtNzUuNzk3IDE4LjIzNy0zOC4zODYgNDUuMS02Ni45MDkgNzkuNDQ1LTg0LjM1NSAyNC4zMjUtMTIuMzU2IDM2LjMyMy0xNy44NDUgNzYuOTQ0LTE4LjA3IDQyLjQ5My0wLjIzNDgzIDUxLjQzOSA0LjcxOTcgNzYuNDM1IDE4LjQ1MiAzMC40MjUgMTYuNzE0IDYxLjc0IDUyLjQzNiA2OC4yMTMgNzcuODExbDMuOTk4MSAxNS42NzIgOS44NTk2LTIxLjU4NWM1NS43MTYtMTIxLjk3IDIzMy42LTEyMC4xNSAyOTUuNSAzLjAzMTYgMTkuNjM4IDM5LjA3NiAyMS43OTQgMTIyLjUxIDQuMzgwMSAxNjkuNTEtMjIuNzE1IDYxLjMwOS02NS4zOCAxMDguMDUtMTY0LjAxIDE3OS42OC02NC42ODEgNDYuOTc0LTEzNy44OCAxMTguMDUtMTQyLjk4IDEyOC4wMy01LjkxNTUgMTEuNTg4LTAuMjgyMTYgMS44MTU5LTI2LjQwOC0yNy40NjF6IiBmaWxsPSIjZGQ1MDRmIi8%2BIDwvZz48L3N2Zz4%3D
-
-[1]: https://github.com/tpope/vim-pathogen
-[2]: https://github.com/VundleVim/Vundle.vim
-[3]: https://github.com/junegunn/vim-plug
-[4]: https://github.com/k-takata/minpac/
+[MIT](LICENSE)

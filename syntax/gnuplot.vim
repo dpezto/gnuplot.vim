@@ -1,546 +1,452 @@
 " Vim syntax file
-" Language:     Gnuplot 5.5
-" Creator:      Dai López Jacinto <dpezto@gmail.com>
-" Last Change:  Mar 28, 2022
-" Filenames:    *.plt *.plot *.gp *.gnuplot *.gnu
-" URL:          http://www.github/dpezto/gnuplot.vim/
+" Language:    gnuplot 6
+" Maintainer:  Dai López Jacinto <dpezto@gmail.com>
+" URL:         https://github.com/dpezto/gnuplot.vim
+" License:     MIT
+"
+" The keyword lists at the bottom of this file are generated from
+" keywords.json, a pinned copy of the dictionary emitted by the
+" tree-sitter-gnuplot grammar. Every gnuplot keyword may be abbreviated down to
+" some minimum length, and Vim's `syn keyword` spells that natively as
+" `xr[ange]` — so the abbreviation rules are carried over exactly without a
+" single regex. Edit keywords.json and run `npm run gen:syntax`; do not edit
+" between the generated markers.
+scriptencoding utf-8
 
-" Use :syn w/in a buffer to see language element breakdown
 
-if version < 600
-  syntax clear
-elseif exists("b:current_syntax")
+if exists('b:current_syntax')
   finish
 endif
 
-" Number -------------------------------------------------------------------{{{
-syn keyword gnuNumber pi NaN I
-syn match   gnuNumber "\v<\d*((\.\d+)?((e|E)(-|\+)?\d+)?)?"
-syn match   gnuNumber "\v(<\d*((\.\d+)?((e|E)(-|\+)?\d+)?)?)@<=(cm|in|pt)"
-hi def link gnuNumber Number
-" }}}
+let s:cpo_save = &cpoptions
+set cpoptions&vim
 
-" User-defined -------------------------------------------------------------{{{
-syn match   gnuDef "\v\w+(\(\p*)@=" " function
-syn match   gnuDef "\v\w+(\[[^:]+)@=" " array
-hi def link gnuDef Define
-" }}}
+" gnuplot identifiers are [A-Za-z_][A-Za-z0-9_]*, and several built-in
+" variables (GPVAL_TERM, STATS_mean_y) rely on '_' being a keyword character.
+syn iskeyword @,48-57,_
 
-" Commands ------------------------------------------------------------------{{{
-syn keyword gnuCmd array break cd call clear continue do
-syn keyword gnuCmd exit fit help history if else for import
-syn keyword gnuCmd load lower pause print pwd quit raise refresh reread
-syn keyword gnuCmd reset save set shell show stats sum system
-syn keyword gnuCmd test toggle undefine unset update vclear vfill while
-syn match   gnuCmd "\v(<eval(uate)?>|<rep(l(o(t)?)?)?>|<s?p(l(o(t)?)?)?>)"
-hi def link gnuCmd Statement
-" }}}
+" Comments ------------------------------------------------------------------
+" A trailing backslash continues a comment onto the next line.
+syn match   gnuplotComment "#.*\%(\\\n.*\)*$" contains=gnuplotTodo,@Spell
+syn keyword gnuplotTodo contained TODO FIXME XXX BUG NOTE HACK
 
-" Gnuplot-defined variables ------------------------------------------------{{{
-syn match   gnuVar "\v(GPVAL_)(\1)@<=(\w+>)"
-" Stats
-syn match   gnuVar "\v\w+(_records|_headers|_outofrange|_invalid|_blank|_blocks)@=(\1)"
-syn match   gnuVar "\v\w+(_columns|_column_header|_index(_min|_max)(_x|_y)?)@=(\1)"
-syn match   gnuVar "\v\w+(_min(_x|_y)?|_max(_x|_y)?|_mean(_err)?(_x|_y)?|_stddev(_err)?(_x|_y)?)@=(\1)"
-syn match   gnuVar "\v\w+(_ssd(_x|_y)?|_(lo|up)_quartile(_x|_y)?|_median(_x|_y)?|_sum(sq)?(_x|_y)?)@=(\1)"
-syn match   gnuVar "\v\w+(_skewness(_err)?(_x|_y)?|_kurtosis(_err)?(_x|_y)?|_adev(_x|_y)?)@=(\1)"
-syn match   gnuVar "\v\w+(_correlation|_slope(_err)?|_intercept(_err)?)@=(\1)"
-syn match   gnuVar "\v\w+(_sumxy|_pos(_min|_max)_y)@=(\1)"
-syn match   gnuVar "\v\w+(_size(_x|_y))@=(\1)"
-" Mouse
-syn match   gnuVar "\v(MOUSE_)(\1)@<=(\w+>)"
-hi def link gnuVar Constant
-" }}}
+" Strings -------------------------------------------------------------------
+" Double quotes interpret backslash escapes; single quotes do not.
+syn match   gnuplotEscape contained "\\\%([\\abfnrtv"']\|[0-7]\{1,3}\|x\x\{1,2}\|u\x\{4}\|U\x\{8}\)"
+syn match   gnuplotFormat  contained "%[-+ #0]*\d*\%(\.\d\+\)\?[hlLqjzt]*[diouxXeEfgGcsSpP%]"
+syn region  gnuplotString  start=+"+ skip=+\\.+ end=+"+ contains=gnuplotEscape,gnuplotFormat,@Spell
+syn region  gnuplotString  start=+'+ end=+'+ contains=gnuplotFormat,@Spell
 
-" Fit ----------------------------------------------------------------------{{{
-syn match   fitOpt "\v(fit .*)@<=(<i(n(d(ex?)?)?)?>|every|skip)"
-syn match   fitOpt "\v(fit .*)@<=(<u(s(i(ng?)?)?)?>|(x|y|xy|x)error)"
-syn match   fitOpt "\v(fit .*)@<=(errors|via)"
-hi def link fitOpt Keyword
-" }}}
+" Datablocks ----------------------------------------------------------------
+" `$data << EOD ... EOD` — the terminator is user-chosen, so match the whole
+" block generically rather than pinning it to EOD.
+" Column references in a using spec (`using ($1+$2)`). Digits, so this can
+" never collide with the `$name` forms below.
+syn match   gnuplotColumnRef "\$\d\+"
 
-" Pause --------------------------------------------------------------------{{{
-syn match   pauseOpt "\v(pause .*)@<=(mouse)"
-hi def link pauseOpt Structure
-" Mouse
-syn match   pa_mouseOpt "\v(pause mouse .*)@<=(keypress|button1|button2|button3|close|any)"
-hi def link pa_mouseOpt Identifier
-"  }}}
+" The reference form (`plot $data`) is defined FIRST: when two items can start
+" at the same position Vim prefers the one defined later, so a trailing match
+" on `$name` would out-rank the region and stop it opening at all.
+syn match   gnuplotDatablockRef "\$\h\w*"
+syn region  gnuplotDatablock matchgroup=gnuplotDatablockName contains=NONE
+      \ start="^\s*\$\h\w*\s*<<\s*\z(\h\w*\)" end="^\s*\z1\s*$"
+syn match   gnuplotOperator "<<" containedin=gnuplotDatablockName
 
-" Plot/Splot ---------------------------------------------------------------{{{
-syn match   pltOpt "\v(<s?p(l(ot?)?)?>.*\s|(\\\s*\n)+.*\s)@<=(keyentry|binary|nonuniform|sparse|matrix|<i(n(d(ex?)?)?)?>)"
-syn match   pltOpt "\v(<s?p(l(ot?)?)?>.*\s|(\\\s*\n)+.*\s)@<=(every|skip|<u(s(i(ng?)?)?)?>)"
-syn match   pltOpt "\v(<s?p(l(ot?)?)?>.*\s|(\\\s*\n)+.*\s)@<=(<w(i(th?)?)?>|smooth|bins|mask|convexhull|zsort)"
-syn match   pltOpt "\v(<s?p(l(ot?)?)?>.*\s|(\\\s*\n)+.*\s)@<=(<(no)?t(it)?(le)?>)"
-hi def link pltOpt Keyword
-" Smooth
-syn match   plt_smtOpt "\v(smooth )@<=(unique|frequency|fnormal|cumulative|cnormal)"
-syn match   plt_smtOpt "\v(smooth )@<=(csplines|acsplines|mcsplines|path|bezier)"
-syn match   plt_smtOpt "\v(smooth )@<=(sbezier|kdensity|convexhull|unwrap)"
-hi def link plt_smtOpt Identifier
-" With
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(<l(ines)?>|<p(oints)?>|linespoints|<lp>)"
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(financebars|<d(ots)?>|impulses|labels)"
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(surface|(f|hi)?steps|arrows|v(ec)?(tors)?)"
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=((x|y)error(bar|lines)|xyerror(bars|lines))"
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(parallelaxes|spiderplot)"
-syn match   plt_withOpt "\v(p(l(ot?)?)?.*\s|(\\\s*\n)+.*\s)@<=(newspiderplot)"
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(boxes|boxerrorbars|boxxyerror|isosurface)"
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(boxplot|candlesticks|circles|zerrorfill)"
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(ellipses|filledcurves?|fillsteps|histograms)"
-syn match   plt_withOpt "\v(<w(i(th?)?)?> )@<=(image|pm3d|rgbalpha|rgbimage|polygons)"
-hi def link plt_withOpt Identifier
-" filledcurves
-syn match   plt_fillcOpt "\v(filledcurves? .*)@<=(closed|above|below|between)"
-hi def link plt_fillcOpt Constant
-" subattributes
-syn match   plts_withOpt "\v((p(l(ot?)?)?.*\s|(\\\s*\n)+.*\s))@<=(<ls>|<lt>|<lw>|<lc>|<pt>|<ps>)"
-hi def link plts_withOpt Constant
-" Title
-syn match   plt_titOps "\v(<(no)?t(it)?(le)? )@<=(<columnheader|<at>|<(no)?enhanced)"
-hi def link plt_titOps Identifier
-" subattributes
-syn match   plts_titOps "\v(<(no)?t(it)?(le)? .*at .*)@<=(beginning|end)"
-hi def link plts_titOps Constant
-" }}}
+" Macros --------------------------------------------------------------------
+syn match   gnuplotMacro "@\h\w*"
 
-" Reset --------------------------------------------------------------------{{{
-syn match   resOpt "\v(reset )@<=(bind|errors|session)"
-hi def link resOpt Structure
-" }}}
+" Numbers -------------------------------------------------------------------
+" gnuplot folds a unit suffix into the number itself (10cm, 3.0in, 0.5pt). The
+" full set is the grammar's typographic-unit alternation; `inch` has to precede
+" `in` or the longer spelling never matches.
+syn match   gnuplotNumber "\<\d\+\%(\.\d*\)\?\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\>"
+syn match   gnuplotNumber "\<\.\d\+\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\>"
+syn match   gnuplotNumber "\<0[xX]\x\+\>"
 
-" Set/show -----------------------------------------------------------------{{{
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<angles>|<arrow>|<autoscale>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<bind>|<border>|<boxwidth>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<boxdepth>|<color>|<colormap>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<colorsequence>|<clabel>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<clip>|<cntrlabel>|<cntrparam>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<colorbox>|<colornames>|<contour>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<cornerpoles>|<dashtype>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<dataf(ile)?>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<decimalsign>|<dgrid3d>|<dummy>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<encoding>|<errorbars>|<fit>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<fontpath>|<format>|<grid>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<hidden3d>|<historysize>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<history>|<isosamples>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<isosurface>|<isotropic>|<jitter>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<k(ey)?>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<lab(el)?>|<linetype>|<link>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<loadpath>|<locale>|<logscale>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<macros>|<mapping>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<(b|l|r|t)?m(ar)?(gin)?>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<micro>|<minussign>|<monochrome>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<mouse>|<multiplot>|<nonlinear>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<object>|<offsets>|<origin>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<o(ut)?(put)?>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<overflow>|<palette>|<parametric>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<paxis>|<pixmap>|<pm3d>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<pointintervalbox>|<pointsize>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<polar>|<print>|<psdir>|<raxis>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<rgbmax>|<sa(mples)?>|<size>|<spiderplot>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<style>|<surface>|<table>|<term?(inal)?>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<termoption>|<theta>|<tics>|<ticslevel>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<ticscale>|<timestamp>|<timefmt>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<tit?(le)?>|<version>|<vgrid>|<view>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2|cb)dat(a)?>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2|cb)lab(el)?>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2|cb|r|t|u|v)ran(ge)?>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<m?(x|y|z|x2|y2|cb|r|t|u|v)tics>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2|cb)dtics>)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2|cb)mtics>|xyplane)"
-syn match   setOpt "\v(((un)?set|show) .*)@<=(<(x|y|z|x2|y2)?zeroaxis>)"
-hi def link setOpt Structure
-" }}}
+" Built-in variables --------------------------------------------------------
+" GPVAL_*, MOUSE_*, FIT_*, ARG*, and the `stats`/`fit` output variables, whose
+" prefix the user chooses (`stats … prefix "FOO"`).
+syn match   gnuplotBuiltinVar "\<\%(GPVAL\|MOUSE\|FIT\)_\w\+\>"
+syn match   gnuplotBuiltinVar "\<ARG\%(C\|V\|\d\+\)\>"
+syn match   gnuplotBuiltinVar "\<\w\+_\%(mean\|stddev\|skewness\|kurtosis\)\%(_err\)\?\%(_x\|_y\)\?\>"
+syn match   gnuplotBuiltinVar "\<\w\+_\%(min\|max\|sdd\|adev\|median\|sum\%(sq\)\?\|\%(lo\|up\)_quartile\)\%(_x\|_y\)\?\>"
+syn match   gnuplotBuiltinVar "\<\w\+_\%(slope\|intercept\)\%(_err\)\?\>"
+syn match   gnuplotBuiltinVar "\<\w\+_\%(records\|headers\|outofrange\|invalid\|blank\|blocks\|correlation\|sumxy\|columns\|column_header\|size_x\|size_y\)\>"
+syn keyword gnuplotBuiltinVar GNUTERM VoxelDistance GridDistance
 
-" Set-angles ---------------------------------------------------------------{{{
-syn match   set_anglOpt "\v(angles .*)@<=(degrees|radians)"
-hi def link set_anglOpt Identifier
-"  }}}
-" Set-arrow ----------------------------------------------------------------{{{
-syn match   set_arroOpt "\v(arrow .*)@<=(from|to|arrowstyle|<as>|(no|back)?head(s)?)"
-syn match   set_arroOpt "\v(arrow .*)@<=(size|fixed|(no)?filled|empty|noborder)"
-syn match   set_arroOpt "\v(arrow .*)@<=(front|back|linestyle|<ls>|linetype|<lt>|linewidth|<lw>|linecolor|<lc>|dashtype|<dt>)"
-syn match   set_arroOpt "\v(arrow .*)@<=(first|second|graph|screen|character)"
-hi def link set_arroOpt Identifier
-" }}}
-" Set-border ---------------------------------------------------------------{{{
-syn match   set_bordOpt "\v(border .*)@<=(front|back|behind|linestyle|<ls>|linetype|<lt>)"
-syn match   set_bordOpt "\v(border .*)@<=(linewidth|<lw>|linecolor|<lc>|dashtype|<dt>|polar)"
-hi def link set_bordOpt Identifier
-" }}}
-" Set-datafile -------------------------------------------------------------{{{
-syn match   set_datafOpt "\v(dataf(ile)? .*)@<=(columnheaders|fortran|nofpe_trap)"
-syn match   set_datafOpt "\v(dataf(ile)? .*)@<=(missing|sep(arator)?|commentschars)"
-syn match   set_datafOpt "\v(dataf(ile)? .*)@<=(binary)"
-hi def link set_datafOpt Identifier
-" subattributes
-syn match   sets_datafOpt "\v(sep(arator)? )@<=(whitespace|tab|comma)"
-hi def link sets_datafOpt Constant
-" }}}
-" Set-encoding -------------------------------------------------------------{{{
-syn match   set_encodOpt "\v(encoding .*)@<=(default|iso_8859_(1>|15|2|9)|koi8(r|u))"
-syn match   set_encodOpt "\v(encoding .*)@<=(cp(437|85(0|2)|950|125(0|1|2|4))|sjis|utf8)"
-hi def link set_encodOpt Identifier
-" }}}
-" Set-fit ------------------------------------------------------------------{{{
-syn match   set_fitOpt "\v(fit .*)@<=(<(no)?log(file)?>|default|<(no)?quiet>|results)"
-syn match   set_fitOpt "\v(fit .*)@<=(brief|verbose|<(no)?errorv(ariables)?>)"
-syn match   set_fitOpt "\v(fit .*)@<=(<(no)?co(variancevariables)?>|<(no)?errors(caling)?>)"
-syn match   set_fitOpt "\v(fit .*)@<=((no)?prescale|maxiter|limit(_abs)?|start-lambda|lambda-factor|script|v4|v5)"
-hi def link set_fitOpt Identifier
-" }}}
-" Set-format ---------------------------------------------------------------{{{
-syn match   set_formatOpt "\v(format \w*)@<=(x|y|z|x2|y2|cb)"
-hi def link set_formatOpt Identifier
-" }}}
-" Set-grid -----------------------------------------------------------------{{{
-syn match   set_gridOpt "\v(grid.*\s)@<=((no)?(m)?(x|y|z|x2|y2|cb|r|t|u|v)tics|(no)?polar)"
-syn match   set_gridOpt "\v(grid.*\s)@<=(layerdefault|front|back|(no)?vertical)"
-syn match   set_gridOpt "\v(grid.*\s)@<=(linewidth|<lw>|linecolor|<lc>|linetype|<lt>|dashtype|<dt>)"
-hi def link set_gridOpt Identifier
-" }}}
-" Set-hidden3d -------------------------------------------------------------{{{
-syn match   set_hidOpt "\v(hidden3d .*)@<=(defaults|front|back|(no)?offset|trianglepattern)"
-syn match   set_hidOpt "\v(hidden3d .*)@<=((no)?undefined|(no)?altdiagonal|(no)?bentover)"
-hi def link set_hidOpt Identifier
-" }}}
-" Set-key ------------------------------------------------------------------{{{
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(<on>|<off>|default|<(no)?enhanced>)"
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(<(no)?a(utotitle)?>|<(no)?box>)"
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(<(no)?opaque>|width|height|vertical)"
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(horizontal|maxcols|maxrows|columns)"
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(keywidth|Left|Right|<(no)?rev(erse)?>)"
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(<(no)?invert>|samplen|spacing|title)"
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(font|textcolor|<tc>|<lw>|linewidth|<dt>|dashtype|inside|outside|fixed)"
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(<(b|l|r|t)?m(ar)?(gin)?>|at|<l(eft)?>)"
-syn match   set_keyOpt "\v( k(ey)? .*)@<=(<r(ight)?>|<t(op)?>|<b(ottom)?>|<c(enter)?>)"
-hi def link set_keyOpt Identifier
-" subattributes
-syn match   sets_keyOpt "\v((<a(utotitle))?> )@<=(columnheader)"
-syn match   sets_keyOpt "\v((maxcols|maxrows) )@<=(auto)"
-syn match   sets_keyOpt "\v((textcolor|<tc>) )@<=(default|<lt>|<ls>|<pal(ette)?>|rgb)"
-syn match   sets_keyOpt "\v((title) )@<=((no)?enhanced|<c(enter)?>|<l(eft)?>|<r(ight)?>)"
-hi def link sets_keyOpt Constant
-" }}}
-" Set-label ----------------------------------------------------------------{{{
-syn match   set_labOpt "\v(lab(el)? .*)@<=(<at>|<l(eft)?>|<c(enter)?>|<r(ight)?>)"
-syn match   set_labOpt "\v(lab(el)? .*)@<=(<(no)?rot(ate)?>|by|font|<(no)?enhanded>)"
-syn match   set_labOpt "\v(lab(el)? .*)@<=(front|back|textcolor|<tc>|<(no)?point>)"
-syn match   set_labOpt "\v(lab(el)? .*)@<=(offset|nobox|boxed|hypertext)"
-hi def link set_labOpt Identifier
-" subattributes
-syn match   sets_labOpt "\v((textcolor|<tc>) )@<=(default|<lt>|<ls>|pal(ette)?|rgb)"
-syn match   sets_labOpt "\v(boxed )@<=(bs)"
-hi def link sets_labOpt Constant
-" }}}
-" Set-logscale -------------------------------------------------------------{{{
-syn match   set_logOpt "\v(logscale \w*)@<=(x|y|z|x2|y2|r|cb)"
-hi def link set_logOpt Identifier
-" }}}
-" Set-mouse ----------------------------------------------------------------{{{
-syn match   set_mousOpt "\v(mouse .*)@<=((no)?doubleclick|(no)?zoomcoordinates)"
-syn match   set_mousOpt "\v(mouse .*)@<=(zoomfactors|(no)?ruler|(no)?polardistance)"
-syn match   set_mousOpt "\v(mouse .*)@<=((mouse)?format|function|(no)?lab(els)?)"
-syn match   set_mousOpt "\v(mouse .*)@<=((no)?zoomjump|(no)?verbose)"
-hi def link set_mousOpt Identifier
-" }}}
-" Set-multiplot ------------------------------------------------------------{{{
-syn match   set_mulpOpt "\v(multiplot .*)@<=(<t(it)?(le)?>|layout)"
-hi def link set_mulpOpt Identifier
-" subattributes
-syn match   sets_mulpOpt "\v(<t(it)?(le)? .*)@<=(font|(no)?enhanced)"
-syn match   sets_mulpOpt "\v(layout .*)@<=(rowsfirst|columnsfirst|downwards|upwards)"
-syn match   sets_mulpOpt "\v(layout .*)@<=(scale|offset|margins|spacing)"
-hi def link sets_mulpOpt Constant
-" }}}
-" Set-paxis ----------------------------------------------------------------{{{
-syn match   set_paxOpt "\v(paxis .*)@<=(ran(ge)?|tics|lab(el)?|offset)"
-hi def link set_paxOpt Identifier
-"  }}}
-" Set-palette --------------------------------------------------------------{{{
-syn match   set_palOpt "\v(palette .*)@<=(gray|color|gamma|rgbformulae|defined)"
-syn match   set_palOpt "\v(palette .*)@<=(file|colormap|functions|cubehelix|viridis)"
-syn match   set_palOpt "\v(palette .*)@<=(model|positive|negative|nops_allcF)"
-syn match   set_palOpt "\v(palette .*)@<=(ps_allcF|maxcolors)"
-hi def link set_palOpt Identifier
-" subattributes
-syn match   sets_palOpt "\v(palette .*cubehelix .*)@<=(start|cycles|saturation)"
-syn match   sets_palOpt "\v(palette .*model )@<=(rgb|RGB|cmy|CMY|hsv|HSV)"
-hi def link sets_palOpt Constant
-" }}}
-" Set-pm3d -----------------------------------------------------------------{{{
-syn match   set_pmOpt "\v(pm3d .*)@<=(<at>|<interpolate>|<scansautomatic>|<scansforward>)"
-syn match   set_pmOpt "\v(pm3d .*)@<=(<scansbackward>|<depthorder>|<flush>|<(no)?ftriangles>)"
-syn match   set_pmOpt "\v(pm3d .*)@<=(<clip>|<clip1in>|<clip4in>|<(no)?clipcb>|<corners2color>)"
-syn match   set_pmOpt "\v(pm3d .*)@<=(<(no)?lighting>|<(no)?border>|<implicit>|<explicit>)"
-syn match   set_pmOpt "\v(pm3d .*)@<=(<map>)"
-hi def link set_pmOpt Identifier
-" subattributes
-syn match   sets_pmOpt "\v(pm3d .*flush )@<=(<begin>|<center>|<end>)"
-syn match   sets_pmOpt "\v(pm3d .*corners2color )@<=(<mean>|<geomean>|<harmean>|<rms>)"
-syn match   sets_pmOpt "\v(pm3d .*corners2color )@<=(<median>|<min>|<max>|<c1>|<c2>|<c3>|<c4>)"
-syn match   sets_pmOpt "\v(pm3d .*lighting .*)@<=(primary|specular|spec2)"
-hi def link sets_pmOpt Constant
-" }}}
-" Set-size -----------------------------------------------------------------{{{
-syn match   set_sizOpt "\v(size .*)@<=((no)?square|(no)?ratio)"
-hi def link set_sizOpt Identifier
-" }}}
-" Set-style ----------------------------------------------------------------{{{
-syn match   set_stOpt "\v(style .*)@<=(arrow|boxplot|data|fill|function|increment)"
-syn match   set_stOpt "\v(style .*)@<=(lines?|circle|rectangle|ellipse|parallelaxis)"
-syn match   set_stOpt "\v(style .*)@<=(spiderplot|textbox)"
-hi def link set_stOpt Identifier
-" Style arrow {{{
-syn match   set_stArr "\v(style .*arrow .*)@<=(default|(no|back)?heads?|size|<(no)?filled>)"
-syn match   set_stArr "\v(style .*arrow .*)@<=(empty|noborder|front|back|linestyle|<ls>)"
-syn match   set_stArr "\v(style .*arrow .*)@<=(linetype|<lt>|linewidth|<lw>|linecolor|<lc>)"
-syn match   set_stArr "\v(style .*arrow .*)@<=(dashtype|<dt>)"
-hi def link set_stArr Constant
-" }}}
-" Style boxplot {{{
-syn match   set_stBoxp "\v(boxplot .*)@<=(ran(ge)?|fraction|(no)?out(liers)?|pointtype)"
-syn match   set_stBoxp "\n(boxplot .*)@<=(candlesticks|financebars|medianlinewidth|separation)"
-syn match   set_stBoxp "\n(boxplot .*)@<=(labels|off|auto|<x>|<x2>|(un)?sorted)"
-hi def link set_stBoxp Constant
-" }}}
-" Style fill {{{
-syn match   set_stFill "\v(style .*fill .*)@<=(empty|transparent|solid|pattern|<lt>|<lc>|<(no)?border>)"
-hi def link set_stFill Constant
-" }}}
-" Style-function {{{
-syn match   set_stFunc "\v(style .*function .*)@<=(<l(ines)?>|<p(oints)?>|linespoints|<lp>)"
-syn match   set_stFunc "\v(style .*function .*)@<=(financebars|<d(ots)?>|impulses|labels)"
-syn match   set_stFunc "\v(style .*function .*)@<=(surface|(f|hi)?steps|arrows|v(ec)?(tors)?)"
-syn match   set_stFunc "\v(style .*function .*)@<=((x|y)error(bar|lines)|xyerror(bars|lines))"
-syn match   set_stFunc "\v(style .*function .*)@<=(parallelaxes|spiderplot)"
-syn match   set_stFunc "\v(style .*function .*)@<=(boxes|boxerrorbars|boxxyerror|isosurface)"
-syn match   set_stFunc "\v(style .*function .*)@<=(boxplot|candlesticks|circles|zerrorfill)"
-syn match   set_stFunc "\v(style .*function .*)@<=(ellipses|filledcurves|fillsteps|histograms)"
-syn match   set_stFunc "\v(style .*function .*)@<=(image|pm3d|rgbalpha|rgbimage|polygons)"
-hi def link set_stFunc Constant
-"  }}}
-" Style increment {{{
-syn match   set_stInc "\v(style .*increment .*)@<=(default|user)"
-hi def link set_stInc Constant
-" }}}
-" Style line {{{
-syn match   set_stLine "\v(style .*line .*)@<=(linetype|<lt>|linecolor|<lc>)"
-syn match   set_stLine "\v(style .*line .*)@<=(linewidth|<lw>|pointtype|<pt>)"
-syn match   set_stLine "\v(style .*line .*)@<=(pointsize|<ps>|pointinverval|<pi>)"
-syn match   set_stLine "\v(style .*line .*)@<=(pointnumber|<pn>|dashtype|<dt>|palette)"
-hi def link set_stLine Constant
-" }}}
-" Style circle {{{
-syn match   set_stCirc "\v(style .*circle .*)@<=(radius|graph|screen|(no)?wedge|(no)?clip)"
-hi def link set_stCirc Constant
-" }}}
-" Style rectangle {{{
-syn match   set_stRect "\v(style .*rectangle .*)@<=(front|back|<lw>|linewidth)"
-syn match   set_stRect "\v(style .*rectangle .*)@<=(fillcolor|fs)"
-hi def link set_stRect Constant
-" }}}
-" Style ellipse {{{
-syn match   set_stElli "\v(style .*ellipse.*)@<=(units|xx|xy|yy|size|graph|screen)"
-syn match   set_stElli "\v(style .*ellipse.*)@<=(angle|(no)?clip)"
-hi def link set_stElli Constant
-" }}}
-" Style parallelaxis {{{
-syn match   set_stPara "\v(style .*parallelaxis.*)@<=(front|back)"
-hi def link set_stPara Constant
-" }}}
-" Style spiderplot {{{
-syn match   set_stSpid "\v(style .*spiderplot.*)@<=(fillstyle|<fs>|linewidth|<lw>|linecolor|<lc>|dashtype|<dt>)"
-syn match   set_stSpid "\v(style .*spiderplot.*)@<=(linetype|<lt>|pointsize|<ps>|pointtype|<pt>|pointcolor|<pc>)"
-hi def link set_stSpid Constant
-" }}}
-" Style textbox {{{
-syn match   set_stTexb "\v(style .*textbox .*)@<=(opaque|transparent|fillcolor|<fc>|(no)?border)"
-syn match   set_stTexb "\v(style .*textbox .*)@<=(linewidth|<lw>|margins)"
-hi def link set_stTexb Constant
-" }}}
-" }}}
-" Set-surface --------------------------------------------------------------{{{
-syn match   set_surfOpt "\v(surface .*)@<=(implicit|explicit)"
-hi def link set_surfOpt Identifier
-"  }}}
-" Set-view -----------------------------------------------------------------{{{
-syn match   set_viewOpt "\v(view .*)@<=(map\s+scale|projection\s+(xy|xz|yz)|(no)?equal\s+(<xy>|<xyz>)|azimuth)"
-hi def link set_viewOpt Identifier
-"  }}}
-" Set-xtics ----------------------------------------------------------------{{{
-syn match   set_ticsOpt "\v(<m?(x|y|z|x2|y2|cb|r|t|u|v)?tics> .*)@<=(axis|border|(no)?mirror)"
-syn match   set_ticsOpt "\v(<m?(x|y|z|x2|y2|cb|r|t|u|v)?tics> .*)@<=(in|out|scale|default)"
-syn match   set_ticsOpt "\v(<m?(x|y|z|x2|y2|cb|r|t|u|v)?tics> .*)@<=((no)?rotate|(no)?offset)"
-syn match   set_ticsOpt "\v(<m?(x|y|z|x2|y2|cb|r|t|u|v)?tics> .*)@<=(<l(eft)?>|<r(ight)?>|<c(enter)?>|autojustify)"
-syn match   set_ticsOpt "\v(<m?(x|y|z|x2|y2|cb|r|t|u|v)?tics> .*)@<=(add|autofreq|format|font)"
-syn match   set_ticsOpt "\v(<m?(x|y|z|x2|y2|cb|r|t|u|v)?tics> .*)@<=((no)?enhanced|numeric|timedate)"
-syn match   set_ticsOpt "\v(<m?(x|y|z|x2|y2|cb|r|t|u|v)?tics> .*)@<=(geographic|(no)?logscale)"
-syn match   set_ticsOpt "\v(<m?(x|y|z|x2|y2|cb|r|t|u|v)?tics> .*)@<=((no)?rangelimit(ed)?|textcolor)"
-hi def link set_ticsOpt Identifier
-" }}}
-" Set-xlabel ----------------------------------------------------------------{{{
-syn match   set_xlabOpt "\v(<(x|y|z|x2|y2|cb)lab(el)?>)@<=(offset|font|textcolor|(no)?enhanced)"
-syn match   set_xlabOpt "\v(<(x|y|z|x2|y2|cb)lab(el)?>)@<=((no)?rotate (by|parallel)?)"
-hi def link set_xlabOpt Identifier
-" }}}
-" Set-xrange ----------------------------------------------------------------{{{
-syn match   set_ranOpt "\v(<(x|y|z|x2|y2|cb|r|t|u|v)ran(ge)?> .*)@<=((no)?rev(erse)?)"
-syn match   set_ranOpt "\v(<(x|y|z|x2|y2|cb|r|t|u|v)ran(ge)?> .*)@<=((no)?writeback)"
-syn match   set_ranOpt "\v(<(x|y|z|x2|y2|cb|r|t|u|v)ran(ge)?> .*)@<=((no)?extend|restore)"
-hi def link set_ranOpt Identifier
-" }}}
-" Set-xyplane --------------------------------------------------------------{{{
-syn match   set_xyplOpt "\v(xyplane .*)@<=(at|relative)"
-hi def link set_xyplOpt Identifier
-" }}}
-" Set-zeroaxis -------------------------------------------------------------{{{
-syn match   set_zeroaOpt "\v((x|y|z|x2|y2)?zeroaxis .*)@<=(linestyle|<ls>|linetype|<lt>)"
-syn match   set_zeroaOpt "\v((x|y|z|x2|y2)?zeroaxis .*)@<=(linewidth|<lw>|linecolor|<lc>|dashtype|<dt>)"
-hi def link set_zeroaOpt Identifier
-" }}}
+" Functions -----------------------------------------------------------------
+" Any identifier immediately followed by '(' reads as a call; the built-in list
+" is defined afterwards so it wins on the same match position.
+syn match   gnuplotFunction "\<\h\w*\ze("
+syn match   gnuplotBuiltinFunction "\<\%(abs\|acosh\|acos\|airy\|arg\|asinh\|asin\|atan2\|atanh\|atan\|cbrt\|ceil\|conj\|cosh\|cos\|exp\|floor\|imag\|int\|log10\|log\|norm\|rand\|real\|round\|sgn\|sinh\|sin\|sqrt\|tanh\|tan\)\ze("
+syn match   gnuplotBuiltinFunction "\<\%(bes[ijy][01n]\|Ai\|Bi\|Bessel[HIJKY]1\?2\?\|Elliptic[EKP]i\?\|erfc\|erfi\|erf\|expint\|gamma\|ibeta\|igamma\|inverf\|invibeta\|invigamma\|invnorm\|LambertW\|lgamma\|lnGamma\|SynchrotronF\|uigamma\|voigt\|zeta\)\ze("
+syn match   gnuplotBuiltinFunction "\<\%(cdawson\|cerf\|faddeeva\|Fresnel[CS]\|VP\%(_fwhm\)\?\)\ze("
+syn match   gnuplotBuiltinFunction "\<\%(gprintf\|sprintf\|strlen\|strstrt\|substr\|split\|join\|trim\|word\|words\|system\)\ze("
+syn match   gnuplotBuiltinFunction "\<\%(column\|columnhead\%(er\)\?\|stringcolumn\|strcol\|exists\|valid\|value\|hsv2rgb\|palette\|rgbcolor\|voxel\|index\)\ze("
+syn match   gnuplotBuiltinFunction "\<\%(time\%(column\)\?\|strftime\|strptime\|tm_\w\+\|weekdate_\%(iso\|cdc\)\)\ze("
 
-" Stats --------------------------------------------------------------------{{{
-syn match   statsOpt "\v(stats .*)@<=(matrix| u(sing)?>| i(ndex)?>|name|(no)?output)"
-hi def link statsOpt Keyword
-" }}}
+" Operators -----------------------------------------------------------------
+syn match   gnuplotOperator "[-+*/%^!~?:.,]"
+syn match   gnuplotOperator "\*\*"
+syn match   gnuplotOperator "[=!<>]="
+syn match   gnuplotOperator "[<>]"
+syn match   gnuplotOperator "<<\|>>"
+syn match   gnuplotOperator "&&\|||\|[&|]"
+syn match   gnuplotOperator "="
+" The grammar gives the word operators their own node, so they get their own
+" group here too.
+syn keyword gnuplotKeywordOperator eq ne
 
-" Operators ----------------------------------------------------------------{{{
-" Unary Operators
-syn match   gnuOp "[-+~!|$]"
-" Binary Operators
-syn match   gnuOp "\*\*"
-syn match   gnuOp "[*/%&^.]"
-syn match   gnuOp "=="
-syn match   gnuOp "!="
-syn match   gnuOp "<"
-syn match   gnuOp "<="
-syn match   gnuOp ">"
-syn match   gnuOp ">="
-syn match   gnuOp "<<"
-syn match   gnuOp ">>"
-syn match   gnuOp "&&"
-syn match   gnuOp "||"
-syn match   gnuOp "="
-syn match   gnuOp "\v(\([^\)]*)@<=,([^\(]*\))@="
-syn match   gnuOp "\v<eq>"
-syn match   gnuOp "\v<ne>"
-" Ternary Operators
-syn match   gnuOp "\v(\p+)@<=\?(\p+:\p+)@=" " ?
-syn match   gnuOp "\v(\p+\?[^:]+)@<=:(\p+)@=" " :
-hi def link gnuOp Operator
-" }}}
+syn match   gnuplotBracket "[][(){}]"
 
-" Functions ----------------------------------------------------------------{{{
-" Math built-in Functions
-syn match   gnuFn "\v(abs|acos|acosh|airy|arg|asin|asinh)(\(\p*)@="
-syn match   gnuFn "\v(atan|atan2|atanh|besj0|besj1|besjn)(\(\p*)@="
-syn match   gnuFn "\v(besy0|besy1|besyn|besi0|besi1|cbrt)(\(\p*)@="
-syn match   gnuFn "\v(ceil|conj|cos|cosh|EllipticK)(\(\p*)@="
-syn match   gnuFn "\v(EllipticE|EllipticPi|erf|erfc)(\(\p*)@="
-syn match   gnuFn "\v(exp|expint|floor|gamma|ibeta)(\(\p*)@="
-syn match   gnuFn "\v(inverf|igamma|imag|int|invnorm)(\(\p*)@="
-syn match   gnuFn "\v(invibeta|invigamma|LambertW|lambertw)(\(\p*)@="
-syn match   gnuFn "\v(lgamma|lnGamma|log|log10|norm)(\(\p*)@="
-syn match   gnuFn "\v(rand|real|round|sgn|Sign)(\(\p*)@="
-syn match   gnuFn "\v(sin|sinh|sqrt|SynchrotronF)(\(\p*)@="
-syn match   gnuFn "\v(tan|tanh|uigamma|voigt|zeta)(\(\p*)@="
-" Special functions from libcerf if available
-syn match   gnuFn "\v(cerf|cdawson|faddeeva|erfi)(\(\p*)@="
-syn match   gnuFn "\v(FresnelC|FresnelS|VP|VP_fwhm)(\(\p*)@="
-" Complex special functions from Amos if available
-syn match   gnuFn "\v(Ai|Bi|BesselH1|BesselH2)(\(\p*)@="
-syn match   gnuFn "\v(BesselJ|BesselY|BesselI|BesselK)(\(\p*)@="
-" String Functions
-syn match   gnuFn "\v(gprintf|sprintf|strlen|strstrt)(\(\p*)@="
-syn match   gnuFn "\v(substr|strftime|system|trim)(\(\p*)@="
-syn match   gnuFn "\v(word|words)(\(\p*)@="
-" Time Functions
-syn match   gnuFn "\v(time|timecolumn|tm_hour|tm_mday|tm_min)(\(\p*)@="
-syn match   gnuFn "\v(tm_mon|tm_sec|tm_wday|tm_week|tm_yday)(\(\p*)@="
-syn match   gnuFn "\v(tm_year|weekdate_iso|weekdate_cdc)(\(\p*)@="
-" Other gnuplot Functions
-syn match   gnuFn "\v(column|columnhead|exists|hsv2rgb|index)(\(\p*)@="
-syn match   gnuFn "\v(palette|rgbcolor|stringcolumn|valid|value|voxel)(\(\p*)@="
-hi def link gnuFn Function
-" }}}
+" An open range end (`[*:*]`, `A[*]`) is a wildcard; a bare `*` between
+" operands is multiplication. Only the bracket-adjacent form is special.
+syn match   gnuplotWildcard "\[\zs\*"
+syn match   gnuplotWildcard "\*\ze[]:]"
+syn match   gnuplotWildcard "[:[]\zs\*\ze\]"
 
-" Macros -------------------------------------------------------------------{{{
-syn match   gnuMacro "@\w\+"
-hi def link gnuMacro Macro
-" }}}
+" Connectors ----------------------------------------------------------------
+" `at`, `via`, `from`, `to`, `by` join a clause to its argument. The grammar
+" aliases them to one tier and the queries capture that as @keyword.function.
+syn keyword gnuplotConnector at via from to by inverse sample
 
-" Strings ------------------------------------------------------------------{{{
-syn region  gnuString start=+"+ skip=+\\"+ end=+"+
-syn region  gnuString start="'" end="'"
-hi def link gnuString String
-" }}}
+" Pseudo plot-elements: they fill an element slot without naming a data source.
+syn keyword gnuplotPseudoElement newhistogram newspiderplot keyentry
 
-" Terminals ----------------------------------------------------------------{{{
-syn match   gnuTerminal "\v(<push>|<pop>|<aifm>|<aqua>|<be>|<block>|<caca>|<cairolatex>|<canvas>)"
-syn match   gnuTerminal "\v(<cgm>|<context>|<domterm>|<dumb>|<dxf>|<emf>|<epscairo>|<epslatex>)"
-syn match   gnuTerminal "\n(<fig>|<gif>|<hpgl>|<jpeg>|<lua>|<mf>|<mp>|<pc15>|<pdfcairo>|<pict2e>|<pm>)"
-syn match   gnuTerminal "\v(<png>|<pngcairo>|<postscript>|<pslatex>|<pstex>|<pstricks>|<qt>)"
-syn match   gnuTerminal "\v(<sixelgd>|<svg>|<tek40\d\d>|<tek410\d>|<texdraw>|<tikz>|<tkcanvas>)"
-syn match   gnuTerminal "\v(<webp>|<windows>|<wxt>|<x11>|<xlib>)"
-hi def link gnuTerminal Identifier
-" Cairolatex
-syn match   cairoOpt "\v(cairolatex .*)@<=(eps|pdf|png|standalone|input|resolution)"
-syn match   cairoOpt "\v(cairolatex .*)@<=(blacktext|colou?rtext|(no)?header)"
-syn match   cairoOpt "\v(cairolatex .*)@<=(mono|color|(no)?transparent|(no)?crop)"
-syn match   cairoOpt "\v(cairolatex .*)@<=(background|<font>|fontscale|linewidth|<lw>)"
-syn match   cairoOpt "\v(cairolatex .*)@<=(rounded|butt|square|dashlenght|dl|size)"
-hi def link cairoOpt Constant
-" Pdfcairo
-syn match   pdfcaOpt "\v(pdfcairo .*)@<=((no)?enhanced|mono|color|font(scale)?)"
-syn match   pdfcaOpt "\v(pdfcairo .*)@<=(linewidth|<lw>|rounded|butt|square|dashlength)"
-syn match   pdfcaOpt "\v(pdfcairo .*)@<=(<dl>|background|size)"
-hi def link pdfcaOpt Constant
-" Png
-syn match   pngOpt "\v(png .*)@<=((no)?enhanced|(no)?transparent|(no)?interlace)"
-syn match   pngOpt "\n(png .*)@<=((no)?truecolor|rounded|butt|linewidth|<lw>|dashlenght|<dl>)"
-syn match   pngOpt "\v(png .*)@<=(tiny|small|medium|large|giant|font|fontscale|size|(no)?crop|background)"
-hi def link pngOpt Constant
-" Pngcairo
-syn match   pngcaOpt "\v(pngcairo .*)@<=((no)?enhanced|mono|color|(no)?transparent)"
-syn match   pngcaOpt "\v(pngcairo .*)@<=((no)?crop|background|<font>|fontscale|linewidth|<lw>)"
-syn match   pngcaOpt "\v(pngcairo .*)@<=(rounded|butt|square|dashlength|<dl>|pointscale|<ps>|size)"
-hi def link pngcaOpt Constant
-" Qt
-syn match   qtOpt "\v(qt .*)@<=(size|position|t(it)?(le)?|font)"
-syn match   qtOpt "\v(qt .*)@<=((no)?enhanced|linewidth|<lw>|dashlength|<dl>|(no)?persist)"
-syn match   qtOpt "\v(qt .*)@<=((no)?raise|(no)?ctrl|close|widget)"
-hi def link qtOpt Constant
-" Svg
-" Texdraw
-" Tikz
-" Wxt
-" }}}
+" `variable` in a style slot means "take the value from the data".
+syn keyword gnuplotStyleVariable variable
 
-" Properties ----------------------------------------------------------------{{{
-syn match   propOpt "\v((linecolor|<lc>|textcolor|<tc>|fillcolor|<fc>|linetype|<lt>) .*)@<=(<rgb(color)?>|<pal(ette)?>|<bgnd>|black|variable)"
-syn match   propOpt "\v((dashtype|<dt>) .*)@<=(solid|dashed)"
-syn match   propOpt "\v((fillstyle|<fs>) .*)@<=(empty|transparent|solid|pattern|<lt>|<lc>|<(no)?border>)"
-syn match   propOpt "\v(tics .*)@<=(axis|border|(no)?mirror)"
-syn match   propOpt "\v(tics .*)@<=(<in>|<out>|scale|default)"
-syn match   propOpt "\v(tics .*)@<=((no)?rotate|(no)?offset)"
-syn match   propOpt "\v(tics .*)@<=(<l(eft)?>|<r(ight)?>|<c(enter)?>|autojustify)"
-syn match   propOpt "\v(tics .*)@<=(add|autofreq|format|font)"
-syn match   propOpt "\v(tics .*)@<=((no)?enhanced|numeric|timedate)"
-syn match   propOpt "\v(tics .*)@<=(geographic|(no)?logscale)"
-syn match   propOpt "\v(tics .*)@<=((no)?rangelimit(ed)?|textcolor)"
-syn match   propOpt "\v(ran(ge)? .*)@<=((no)?rev(erse)?|(no)?writeback|(no)?extend)"
-hi def link propOpt Constant
-" }}}
+" Named colours and palette presets.
+syn keyword gnuplotColorName viridis black bgnd background
 
-" Comment ------------------------------------------------------------------{{{
-syn region  plotComment start="#" skip="\\" end="\n" contains=plotTodo
-hi def link plotComment Comment
-" }}}
+" Shell escape --------------------------------------------------------------
+" Only the `!` itself is the command; the rest of the line is a shell command,
+" which the tree-sitter side highlights by injecting bash. Vim has no
+" equivalent, so it is left unstyled rather than painted as one blob.
+syn match   gnuplotShell "^\s*!"
+" The grammar aliases `system` and `!` to the same command. `system` is also a
+" string function, and a keyword would out-rank the function match above and
+" break `system("ls")` — so the command form is a match that excludes a call.
+syn match   gnuplotCommand "\<system\>\%(\s*(\)\@!"
 
-" Todo ---------------------------------------------------------------------{{{
-syn keyword plotTodo contained TODO FIXME XXX BUG NOTE HACK
-hi def link plotTodo Todo
-" }}}
+" Keywords ------------------------------------------------------------------
+" >>> generated by scripts/gen-syntax.mjs — do not edit by hand
+" 724 keywords across 6 groups. Regenerate with
+" `npm run gen:syntax` after updating keywords.json.
+" Groups are emitted in reverse-priority order: Vim resolves a keyword
+" defined twice to the last definition.
 
-let b:current_syntax = "gnuplot"
+syn keyword gnuplotValue acsplines all allwindows anchor ansi ansi256 ansirgb
+syn keyword gnuplotValue any avg axis backward base baseline bdefault beveled
+syn keyword gnuplotValue bezier big blacktext both brief butt button1 button2
+syn keyword gnuplotValue button3 cartesian cauchy ccw classic clockwise close
+syn keyword gnuplotValue cnormal colortext colourtext columnsfirst context
+syn keyword gnuplotValue counterclockwise cp1250 cp1251 cp1252 cp1254 cp437
+syn keyword gnuplotValue cp850 cp852 cp950 csplines cumulative cw cylindrical
+syn keyword gnuplotValue dashed days defaultplex defaults downwards duplex
+syn keyword gnuplotValue dynamic eject empty eps errors explicit fix fixed
+syn keyword gnuplotValue float fnormal fortran forward frequency full
+syn keyword gnuplotValue fullwidth gauss geographic giant gnuplot gray hann
+syn keyword gnuplotValue hex hours implicit iso_8859_1 iso_8859_15 iso_8859_2
+syn keyword gnuplotValue iso_8859_9 kdensity keepfix keypress koi8r koi8u
+syn keyword gnuplotValue landscape large latex level1 level3 leveldefault
+syn keyword gnuplotValue linear mcsplines medium minutes mitered mono months
+syn keyword gnuplotValue mpoints nodraw none nooffset nops_allcF normalpoints
+syn keyword gnuplotValue nosquare notransparent noundefined nounit numeric off
+syn keyword gnuplotValue offset on parallel path pdf pdftricks2 perl perltkx
+syn keyword gnuplotValue pixels png podo polygon portrait ps_allcF pstricks
+syn keyword gnuplotValue python results rexx rounded rowsfirst ruby sbezier
+syn keyword gnuplotValue script seconds session simplex sjis small smallpoints
+syn keyword gnuplotValue solid spherical splines square sum swarm tcl tex
+syn keyword gnuplotValue texarrows texpoints texthidden textnormal textrigid
+syn keyword gnuplotValue textspecial time timedate tiny tinypoints trip
+syn keyword gnuplotValue undefined unique unit unwrap upwards utf8 v4 v5 weeks
+syn keyword gnuplotValue x0 x1 xx xy xyz xz y0 y1 years yy yz z0
+
+syn keyword gnuplotFlag altdiagonal antialias attributes auxfile back backhead
+syn keyword gnuplotFlag backheads behind bentover box boxed character clipcb
+syn keyword gnuplotFlag columnheaders covariancevariables crop ctrl ctrlq
+syn keyword gnuplotFlag depthorder enhanced equal errorscaling errorvariables
+syn keyword gnuplotFlag externalimages feed filled first front ftriangles
+syn keyword gnuplotFlag fulldoc gparrows gppoints graph head heads hypertext
+syn keyword gnuplotFlag inlineimages interactive interlace invert lighting
+syn keyword gnuplotFlag mirror noaltdiagonal noanimate noantialias
+syn keyword gnuplotFlag noattributes noauxfile nobentover noborder nobox
+syn keyword gnuplotFlag noboxed noclipcb nocolumnheaders nocontours
+syn keyword gnuplotFlag nocovariancevariables nocrop noctrl noctrlq noenhanced
+syn keyword gnuplotFlag noequal noerrorscaling noerrorvariables noextend
+syn keyword gnuplotFlag noexternalimages nofeed nofilled nofpe_trap
+syn keyword gnuplotFlag noftriangles nofulldoc nogparrows nogppoints nogrid
+syn keyword gnuplotFlag nohead noheads nohidden3d nointerlace noinvert
+syn keyword gnuplotFlag nolighting nologfile nomirror noopaque nooriginreset
+syn keyword gnuplotFlag nooutliers nopersist nopicenvironment nopoint
+syn keyword gnuplotFlag noprescale noproportional nopspoints norangelimited
+syn keyword gnuplotFlag noreplotonresize noreverse norotate norottext
+syn keyword gnuplotFlag nostandalone nosurface notightboundingbox notikzarrows
+syn keyword gnuplotFlag notruecolor novertical nowedge nowriteback opaque
+syn keyword gnuplotFlag originreset outliers persist picenvironment prescale
+syn keyword gnuplotFlag psarrows pspoints rangelimited replotonresize reverse
+syn keyword gnuplotFlag rotate rottext screen scroll second standalone
+syn keyword gnuplotFlag tightboundingbox tikzarrows truecolor vertical wedge
+syn keyword gnuplotFlag writeback
+
+syn keyword gnuplotOption Left Right absolute add angle angles append arc
+syn keyword gnuplotOption arrow arrowstyle as aspect at auto autofreq
+syn keyword gnuplotOption autojustify autoscale autotitle azimuth bars bmargin
+syn keyword gnuplotOption border bottom boxdepth boxwidth bs bspline by
+syn keyword gnuplotOption cairolatex canvas cbdata cbdtics cblabel cbmtics
+syn keyword gnuplotOption cbrange cbtics center cgm charsize clip clustered
+syn keyword gnuplotOption cntrlabel cntrparam color colorbox colormap
+syn keyword gnuplotOption colornames colorsequence columnheader columns
+syn keyword gnuplotOption columnstacked contourfill contours cornerpoles
+syn keyword gnuplotOption cubehelix cubicspline cycle cycles dashlength
+syn keyword gnuplotOption dashtype datafile decimalsign default defined
+syn keyword gnuplotOption degrees delay dgrid3d discrete dl domterm
+syn keyword gnuplotOption doubleclick dt dumb dummy dxf emf encoding epscairo
+syn keyword gnuplotOption epslatex errorbars fc fig file fillchar fillcolor
+syn keyword gnuplotOption fillstyle firstlinetype fit2rgbformulae flush font
+syn keyword gnuplotOption fontscale fontsize format fraction from fs fsize
+syn keyword gnuplotOption functions gamma gap gif gradient grid header height
+syn keyword gnuplotOption hidden3d horizontal hpgl incremental inside
+syn keyword gnuplotOption insidecolor interval isosamples isosurface isotropic
+syn keyword gnuplotOption jitter jpeg jsdir key keywidth kittycairo kittygd
+syn keyword gnuplotOption label layerdefault lc left levels limit limit_abs
+syn keyword gnuplotOption linecolor linestyle linetype linewidth link lmargin
+syn keyword gnuplotOption loadpath locale logfile logscale loop ls lt lua lw
+syn keyword gnuplotOption map mapping margins maxcolors maxcols maxiter
+syn keyword gnuplotOption maxrows mcbtics medianlinewidth micro minussign
+syn keyword gnuplotOption mixed monochrome mouse mouseformat mrtics mttics
+syn keyword gnuplotOption multiplot mutics mvtics mvxtics mvytics mvztics
+syn keyword gnuplotOption mx2tics mxtics mxytics my2tics mytics mztics
+syn keyword gnuplotOption negative new noautotitle noborder noclip
+syn keyword gnuplotOption nodoubleclick noheader nohidden3d noinsidecolor
+syn keyword gnuplotOption nokeyseparators nolink nologfile nologscale
+syn keyword gnuplotOption nonlinear noo[utput] nopolar nopolardistance
+syn keyword gnuplotOption nopolardistancedeg nopolardistancetan noratio
+syn keyword gnuplotOption noruler notimestamp notit[le] noverbose
+syn keyword gnuplotOption nozoomcoordinates nozoomjump numbers o[utput] object
+syn keyword gnuplotOption offsets one onecolor order origin outside overflow
+syn keyword gnuplotOption overlap palette palfuncparam parametric paxis pcl5
+syn keyword gnuplotOption pdfcairo pi pict2e pixmap plotsize pm3d pn pngcairo
+syn keyword gnuplotOption point pointinterval pointintervalbox pointnumber
+syn keyword gnuplotOption pointscale pointsize pointsmax pointtype polar
+syn keyword gnuplotOption polardistance polardistancedeg polardistancetan
+syn keyword gnuplotOption positive postscript projection ps psdir pslatex
+syn keyword gnuplotOption pstex pt qnorm qt quality quiet radial radians
+syn keyword gnuplotOption radius range ratio raxis rdata rdtics relative
+syn keyword gnuplotOption resolution rgbformulae rgbmax right rlabel rmargin
+syn keyword gnuplotOption rmtics rowstacked rrange rtics rto ruler samplen
+syn keyword gnuplotOption samples saturation scale separation sixelgd size
+syn keyword gnuplotOption sorted spacing spiderplot spotlight spread style
+syn keyword gnuplotOption surface svg t[erminal] table tc tdata tdtics tek40xx
+syn keyword gnuplotOption tek410x termoption texdraw textcolor theta tics tikz
+syn keyword gnuplotOption timefmt timestamp tit[le] tkcanvas tlabel tmargin
+syn keyword gnuplotOption tmtics to top trange trianglepattern triangles ttics
+syn keyword gnuplotOption two udata udtics ulabel umtics units unknown
+syn keyword gnuplotOption unsorted urange user utics variables vdata vdtics
+syn keyword gnuplotOption verbose version vgrid view vlabel vmtics vrange
+syn keyword gnuplotOption vtics vttek vxdata vxdtics vxlabel vxmtics vxrange
+syn keyword gnuplotOption vxtics vydata vydtics vylabel vymtics vyrange vytics
+syn keyword gnuplotOption vzdata vzdtics vzlabel vzmtics vzrange vztics walls
+syn keyword gnuplotOption webp width window wrap wxt x11 x2data x2dtics
+syn keyword gnuplotOption x2label x2mtics x2range x2tics x2zeroaxis xdata
+syn keyword gnuplotOption xdtics xlabel xmtics xrange xterm xtics xydata
+syn keyword gnuplotOption xydtics xylabel xymtics xyplane xyrange xytics
+syn keyword gnuplotOption xzeroaxis y2data y2dtics y2label y2mtics y2range
+syn keyword gnuplotOption y2tics y2zeroaxis ydata ydtics ylabel ymtics yrange
+syn keyword gnuplotOption ytics yzeroaxis zdata zdtics zero zeroaxis zlabel
+syn keyword gnuplotOption zmtics zoomcoordinates zoomfactors zoomjump zrange
+syn keyword gnuplotOption ztics zzeroaxis
+
+syn keyword gnuplotStyle arrows boxerrorbars boxes boxplot boxxyerror
+syn keyword gnuplotStyle candlesticks circle circles data dots ellipse
+syn keyword gnuplotStyle ellipses errorlines filledcurves fillsteps
+syn keyword gnuplotStyle financebars fsteps function histeps histogram
+syn keyword gnuplotStyle histograms hsteps image impulses l[ines] labels line
+syn keyword gnuplotStyle linesp[oints] lp mask nolabels p[oints] parallelaxes
+syn keyword gnuplotStyle parallelaxis polygons rectangle rgbalpha rgbimage
+syn keyword gnuplotStyle sectors steps textbox vectors watchpoint xerrorbars
+syn keyword gnuplotStyle xerrorlines xyerrorbars xyerrorlines yerrorbars
+syn keyword gnuplotStyle yerrorlines zerrorfill
+
+syn keyword gnuplotAttribute axes binrange bins binvalue binwidth every if
+syn keyword gnuplotAttribute index not[itle] perpendicular scan smooth u[sing]
+syn keyword gnuplotAttribute w[ith] watch
+
+syn keyword gnuplotCommand bind break call cd clear continue evaluate exit fit
+syn keyword gnuplotCommand help history import load lower noraise p[lot] pause
+syn keyword gnuplotCommand print printerror pwd quit raise refresh remultiplot
+syn keyword gnuplotCommand rep[lot] reread reset save set show sp[lot] stats
+syn keyword gnuplotCommand test toggle undefine unset vclear warn
+
+" Spelled like :syn arguments, so these cannot be keywords.
+syn match gnuplotFlag "\<extend\>"
+syn match gnuplotOption "\<start\>"
+syn match gnuplotValue "\<transparent\>"
+" <<< end generated block
+
+" Built-in constants --------------------------------------------------------
+" After the generated block on purpose: `pi` is also the two-letter spelling of
+" `pointinterval`, and a bare `pi` is far more often the constant.
+syn keyword gnuplotConstant pi NaN Inf
+
+" Literals the dictionary does not carry -------------------------------------
+" keywords.json only covers tokens the grammar resolves through its scanner
+" tiers. A handful of words are plain literals in the grammar instead, so they
+" are listed here by hand.
+" Values
+syn keyword gnuplotValue  whitespace tab comma
+syn keyword gnuplotValue  above below closed between
+" `title columnheader` takes no parentheses but is still the builtin. Defined
+" after the generated block so it out-ranks the option-tier entry for the same
+" word.
+syn keyword gnuplotBuiltinFunction columnheader columnhead
+
+" The queries class these as @attribute rather than enumerated values.
+" `transparent` is spelled like a :syn argument, so it can only be a match.
+syn match   gnuplotStyle  "\<transparent\>"
+syn keyword gnuplotStyle  solid separator monochrome nobackground
+syn keyword gnuplotStyle  animate input units_opt RGB CMY HSV
+" Sub-keywords the grammar spells as self-named key() aliases, which its
+" dictionary generator skips on purpose because the parse tables already
+" describe them. They still need naming here.
+syn keyword gnuplotOption binary matrix via name
+syn keyword gnuplotFlag   nooutput
+syn keyword gnuplotOption rgbcolor rgb fill func[tion] increment
+syn keyword gnuplotOption defined maxcolors gamma
+syn keyword gnuplotCommand shell
+
+" The rest of that same class, recovered by mining every terminal out of the
+" grammar's src/grammar.json and subtracting what this file already names.
+" Grouped by where the grammar puts them; `npm run gen:syntax` never touches
+" any of it, so a word that later appears in keywords.json must be deleted
+" here or Vim will resolve it to whichever definition comes last.
+syn keyword gnuplotCommand vfill vgfill
+" `set pm3d` bodies: clip modes, corners2color, lighting and spotlight.
+syn keyword gnuplotOption clip1in clip4in corners2color zclip interpolate
+syn keyword gnuplotOption primary specular spec2 rot_x rot_z
+syn keyword gnuplotValue  geomean harmean rms c1 c2 c3 c4
+" Option heads and suboptions the grammar spells as bare literals.
+syn keyword gnuplotOption changes datablocks commentschars missing colour
+syn keyword gnuplotOption model pattern layout length position prefix frac
+syn keyword gnuplotOption whiskerbars
+" Axis names. `cb`, `x2`, `y2` and the voxel axes are one alternation in the
+" grammar; the single-letter members are left out for the same reason
+" abbreviations are — a bare `r` or `t` is far more often a variable.
+syn keyword gnuplotOption cb x2 y2 vx vy vz
+syn keyword gnuplotValue  x1y1 x1y2 x2y1 x2y2
+" Toggles that take no `no` counterpart.
+syn keyword gnuplotFlag   long restore retrace noautoscale
+" Datafile modifiers: the `binary`/`matrix` keywords and the plot-element
+" filters that sit alongside `every`/`using`.
+syn keyword gnuplotAttribute record filetype endian dx dy dz transpose
+syn keyword gnuplotAttribute flipx flipy flipz nonuniform sparse expand
+syn keyword gnuplotAttribute convexhull concavehull rowheaders sharpen
+syn keyword gnuplotAttribute volatile zsort unitweights bandwidth period
+syn keyword gnuplotValue  scansautomatic scansforward scansbackward
+syn keyword gnuplotValue  little middle pdp swab swap
+" `with isosurface level <n>`, and the plural error-bar styles.
+syn keyword gnuplotStyle  level xyerrors yerrors zerrors
+" Assorted values: `exit message`, `at beginning`, `set terminal push|pop`.
+syn keyword gnuplotValue  beginning message status next previous push pop
+" Spelled like :syn arguments, so these can only be matches — same quirk the
+" generated block works around for `extend` and `start`.
+syn match   gnuplotAttribute "\<skip\>"
+syn match   gnuplotValue     "\<end\>"
+
+" Control flow --------------------------------------------------------------
+" These are plain literals in the grammar rather than tier keywords, so they do
+" not appear in keywords.json and are listed by hand. Defined after the
+" generated block so they win over it: `if` is also the plot-element data
+" filter (`plot 'f' if ($1>0)`), which the dictionary classes as an attribute,
+" and reading it as a conditional is the better default.
+syn keyword gnuplotConditional if else
+syn keyword gnuplotRepeat      do while for in
+syn keyword gnuplotCommand     array sum
+
+" Highlight links -----------------------------------------------------------
+" The group names come from the grammar's capture taxonomy, where an alias
+" names the clause family a word belongs to rather than the word itself: `cmd`
+" is a command verb, `opt`/`arg` a set/show option or one of its suboptions,
+" `flag` a toggle, `mod` an enumerated value, `attr` a plot-element modifier,
+" `plt_st` a plot style.
+"
+" Under Neovim the links point at the same treesitter capture groups that
+" queries/highlights.scm uses in tree-sitter-gnuplot, so a buffer highlighted
+" by this plugin and one highlighted by the grammar pick up identical colours
+" from the colorscheme. Neovim ships default highlights for every standard
+" capture, so this holds even without a treesitter parser installed.
+"
+" Vim has no such groups, so it falls back to the standard ones.
+if has('nvim')
+  hi def link gnuplotComment           @comment
+  hi def link gnuplotTodo              @comment.todo
+  hi def link gnuplotString            @string
+  hi def link gnuplotEscape            @string.escape
+  hi def link gnuplotFormat            @string.special
+  hi def link gnuplotDatablock         @string
+  hi def link gnuplotDatablockName     @label
+  hi def link gnuplotDatablockRef      @module
+  hi def link gnuplotColumnRef         @variable.parameter
+  hi def link gnuplotMacro             @function.macro
+  hi def link gnuplotNumber            @number
+  hi def link gnuplotConstant          @constant.builtin
+  hi def link gnuplotBuiltinVar        @variable.builtin
+  hi def link gnuplotFunction          @function.call
+  hi def link gnuplotBuiltinFunction   @function.builtin
+  hi def link gnuplotOperator          @operator
+  hi def link gnuplotKeywordOperator   @keyword.operator
+  hi def link gnuplotBracket           @punctuation.bracket
+  hi def link gnuplotWildcard          @character.special
+  hi def link gnuplotShell             @keyword
+  hi def link gnuplotCommand           @keyword
+  hi def link gnuplotPseudoElement     @keyword
+  hi def link gnuplotConnector         @keyword.function
+  hi def link gnuplotOption            @variable.member
+  hi def link gnuplotFlag              @keyword.directive
+  hi def link gnuplotValue             @constant
+  hi def link gnuplotAttribute         @property
+  hi def link gnuplotStyle             @attribute
+  hi def link gnuplotStyleVariable     @variable.parameter
+  hi def link gnuplotColorName         @variable.parameter.builtin
+  hi def link gnuplotConditional       @keyword.conditional
+  hi def link gnuplotRepeat            @keyword.repeat
+else
+  hi def link gnuplotComment           Comment
+  hi def link gnuplotTodo              Todo
+  hi def link gnuplotString            String
+  hi def link gnuplotEscape            SpecialChar
+  hi def link gnuplotFormat            SpecialChar
+  hi def link gnuplotDatablock         String
+  hi def link gnuplotDatablockName     Label
+  hi def link gnuplotDatablockRef      Identifier
+  hi def link gnuplotColumnRef         Special
+  hi def link gnuplotMacro             Macro
+  hi def link gnuplotNumber            Number
+  hi def link gnuplotConstant          Constant
+  hi def link gnuplotBuiltinVar        Identifier
+  hi def link gnuplotFunction          Function
+  hi def link gnuplotBuiltinFunction   Function
+  hi def link gnuplotOperator          Operator
+  hi def link gnuplotKeywordOperator   Operator
+  hi def link gnuplotBracket           Delimiter
+  hi def link gnuplotWildcard          Special
+  hi def link gnuplotShell             Statement
+  hi def link gnuplotCommand           Statement
+  hi def link gnuplotPseudoElement     Statement
+  hi def link gnuplotConnector         Function
+  hi def link gnuplotOption            Identifier
+  hi def link gnuplotFlag              PreProc
+  hi def link gnuplotValue             Constant
+  hi def link gnuplotAttribute         Structure
+  hi def link gnuplotStyle             Type
+  hi def link gnuplotStyleVariable     Special
+  hi def link gnuplotColorName         Constant
+  hi def link gnuplotConditional       Conditional
+  hi def link gnuplotRepeat            Repeat
+endif
+
+let b:current_syntax = 'gnuplot'
+
+let &cpoptions = s:cpo_save
+unlet s:cpo_save

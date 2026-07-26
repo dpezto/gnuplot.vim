@@ -1,0 +1,19 @@
+name: Feature request
+description: A gnuplot command/option not yet supported, or a query improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's missing
+      description: The gnuplot syntax or highlight/fold/injection behavior the grammar doesn't handle yet.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example
+      description: A gnuplot snippet showing the construct, and (if known) the relevant section of the gnuplot 6 docs.
+      render: gnuplot
+    validations:
+      required: false

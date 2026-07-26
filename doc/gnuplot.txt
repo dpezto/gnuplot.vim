@@ -1,0 +1,133 @@
+*gnuplot.txt*   Syntax highlighting for gnuplot 6
+
+==============================================================================
+CONTENTS                                                    *gnuplot-contents*
+
+    1. Introduction ........................... |gnuplot-introduction|
+    2. Filetype detection ..................... |gnuplot-ftdetect|
+    3. Highlight groups ....................... |gnuplot-groups|
+    4. Abbreviations .......................... |gnuplot-abbreviations|
+    5. Known limits ........................... |gnuplot-limits|
+    6. Regenerating ........................... |gnuplot-regenerating|
+
+==============================================================================
+1. INTRODUCTION                                         *gnuplot-introduction*
+
+Syntax highlighting for gnuplot 6 scripts.
+
+The keyword lists are generated from `keywords.json`, a pinned copy of the
+dictionary emitted by the tree-sitter-gnuplot grammar. Both projects therefore
+recognise the same words with the same abbreviation rules.
+
+==============================================================================
+2. FILETYPE DETECTION                                       *gnuplot-ftdetect*
+
+The filetype is set for these extensions: >
+
+    .gnu  .gnuplot  .gpi  .plot  .plt
+
+the files `gnuplotrc` and `.gnuplot`,
+
+and for any file whose first line is a shebang naming gnuplot: >
+
+    #!/usr/bin/env gnuplot
+
+`.gp` is not claimed: the stock runtimes assign it to PARI/GP. Detection uses
+|:setf| under Vim, which yields to a filetype another runtime file already set,
+and `vim.filetype.add()` under Neovim.
+
+To claim it anyway, add this to your own config rather than to the plugin: >
+
+    " Neovim
+    vim.filetype.add({ extension = { gp = "gnuplot" } })
+
+    " Vim
+    autocmd BufNewFile,BufRead *.gp set filetype=gnuplot
+
+==============================================================================
+3. HIGHLIGHT GROUPS                                           *gnuplot-groups*
+
+The groups mirror the capture taxonomy of the tree-sitter grammar, where an
+alias names the clause family a word belongs to rather than the word itself.
+
+    gnuplotCommand      command verb (plot, set, splot)
+    gnuplotOption       set/show option head and its suboptions
+    gnuplotFlag         toggles, {no}X forms, coordinate systems
+    gnuplotValue        enumerated values (degrees, comma, cspline)
+    gnuplotAttribute    plot-element modifier (with, using, title)
+    gnuplotStyle        plot style name (lines, boxes, pm3d)
+    gnuplotConditional  if, else
+    gnuplotRepeat       do, while, for, in
+
+    gnuplotConnector    at, via, from, to, by
+    gnuplotColorName    viridis, black, bgnd, background
+    gnuplotStyleVariable  the `variable` style slot
+    gnuplotPseudoElement  newhistogram, newspiderplot, keyentry
+
+    gnuplotComment gnuplotTodo gnuplotString gnuplotEscape gnuplotFormat
+    gnuplotDatablock gnuplotDatablockName gnuplotDatablockRef gnuplotColumnRef
+    gnuplotMacro gnuplotNumber gnuplotConstant gnuplotBuiltinVar
+    gnuplotFunction gnuplotBuiltinFunction gnuplotOperator
+    gnuplotKeywordOperator gnuplotBracket gnuplotWildcard gnuplotShell
+
+Under Neovim each links to the treesitter capture the grammar's own queries
+use, so a buffer highlighted by this plugin and one highlighted by
+tree-sitter-gnuplot take the same colours from the colorscheme: `@keyword`,
+`@variable.member`, `@keyword.directive`, `@constant`, `@property`,
+`@attribute` and so on. Neovim defines every standard capture by default, so
+this works with no parser installed. Under Vim the links fall back to the
+standard groups.
+
+Override a link in your |vimrc| after the syntax loads: >
+
+    autocmd ColorScheme * hi link gnuplotStyle Special
+
+==============================================================================
+4. ABBREVIATIONS                                       *gnuplot-abbreviations*
+
+gnuplot lets most keywords be shortened. The generated lists spell that as
+`p[lot]`, which is |:syn-keyword|'s own notation for an optional tail, so an
+abbreviation costs no regular expression at all.
+
+Which keywords may appear short is deliberately a small list rather than all of
+them: plot, splot, replot, terminal, output, using, with, title, notitle and
+the three `with` values lines, points and linespoints. Honouring every gnuplot
+abbreviation would make most single letters keywords -- fifty-one of them
+shorten to one character -- so `a = 42` and a loop counter would light up.
+
+==============================================================================
+5. KNOWN LIMITS                                               *gnuplot-limits*
+
+Vim keywords carry no context, so a word that means two things in gnuplot gets
+one colour. `p` opens a plot command and also names the `points` style; the
+command wins. `f` is the `fit` command, so `f(x) = x**2` colours `f` as a
+command rather than a function definition.
+
+Where a word belongs to several tiers the generator picks one, preferring, in
+order: command, option, plot style, style substyle, element modifier,
+coordinate, enumerated value, toggle, suboption.
+
+`set xr` is not highlighted because xrange is not on the abbreviation list
+above; its whole word is required.
+
+Two differences from the grammar are deliberate: a datablock body is inert
+here, where the grammar highlights its contents, and `!` marks only the shell
+escape itself because Vim cannot inject bash into the rest of the line.
+
+==============================================================================
+6. REGENERATING                                         *gnuplot-regenerating*
+
+After refreshing `keywords.json` from the grammar: >
+
+    npm run gen:syntax
+
+Only the block between the generated markers in `syntax/gnuplot.vim` changes;
+everything else in that file is hand written. CI runs
+`npm run check:syntax` and fails if the committed file is stale.
+
+Run the assertions with: >
+
+    nvim --headless -u NONE -S tests/run.vim
+    vim  -es      -u NONE -S tests/run.vim
+
+vim:tw=78:ts=8:ft=help:norl:
