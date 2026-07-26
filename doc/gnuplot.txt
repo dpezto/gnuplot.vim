@@ -24,7 +24,9 @@ recognise the same words with the same abbreviation rules.
 
 The filetype is set for these extensions: >
 
-    .gnu  .gnuplot  .gp  .gpi  .pal  .plot  .plt
+    .gnu  .gnuplot  .gp  .gpi  .plot  .plt
+
+the files `gnuplotrc` and `.gnuplot`,
 
 and for any file whose first line is a shebang naming gnuplot: >
 
@@ -52,23 +54,41 @@ alias names the clause family a word belongs to rather than the word itself.
     gnuplotConditional  if, else
     gnuplotRepeat       do, while, for, in
 
-    gnuplotComment gnuplotTodo gnuplotString gnuplotEscape gnuplotFormat
-    gnuplotDatablock gnuplotDatablockName gnuplotMacro gnuplotNumber
-    gnuplotConstant gnuplotBuiltinVar gnuplotFunction gnuplotBuiltinFunction
-    gnuplotOperator gnuplotShell
+    gnuplotConnector    at, via, from, to, by
+    gnuplotColorName    viridis, black, bgnd, background
+    gnuplotStyleVariable  the `variable` style slot
+    gnuplotPseudoElement  newhistogram, newspiderplot, keyentry
 
-Each links to a standard group, so any colorscheme handles them. Override a
-link in your |vimrc| after the syntax loads: >
+    gnuplotComment gnuplotTodo gnuplotString gnuplotEscape gnuplotFormat
+    gnuplotDatablock gnuplotDatablockName gnuplotDatablockRef gnuplotColumnRef
+    gnuplotMacro gnuplotNumber gnuplotConstant gnuplotBuiltinVar
+    gnuplotFunction gnuplotBuiltinFunction gnuplotOperator
+    gnuplotKeywordOperator gnuplotBracket gnuplotWildcard gnuplotShell
+
+Under Neovim each links to the treesitter capture the grammar's own queries
+use, so a buffer highlighted by this plugin and one highlighted by
+tree-sitter-gnuplot take the same colours from the colorscheme: `@keyword`,
+`@variable.member`, `@keyword.directive`, `@constant`, `@property`,
+`@attribute` and so on. Neovim defines every standard capture by default, so
+this works with no parser installed. Under Vim the links fall back to the
+standard groups.
+
+Override a link in your |vimrc| after the syntax loads: >
 
     autocmd ColorScheme * hi link gnuplotStyle Special
 
 ==============================================================================
 4. ABBREVIATIONS                                       *gnuplot-abbreviations*
 
-gnuplot lets most keywords be shortened, and the plugin follows the same
-minimums. `set xran [0:1]` and `set xrange [0:1]` highlight identically
-because the generated list spells the keyword `xran[ge]`, which is |:syn-keyword|'s
-own notation for an optional tail. No regular expressions are involved.
+gnuplot lets most keywords be shortened. The generated lists spell that as
+`p[lot]`, which is |:syn-keyword|'s own notation for an optional tail, so an
+abbreviation costs no regular expression at all.
+
+Which keywords may appear short is deliberately a small list rather than all of
+them: plot, splot, replot, terminal, output, using, with, title, notitle and
+the three `with` values lines, points and linespoints. Honouring every gnuplot
+abbreviation would make most single letters keywords -- fifty-one of them
+shorten to one character -- so `a = 42` and a loop counter would light up.
 
 ==============================================================================
 5. KNOWN LIMITS                                               *gnuplot-limits*
@@ -79,12 +99,15 @@ command wins. `f` is the `fit` command, so `f(x) = x**2` colours `f` as a
 command rather than a function definition.
 
 Where a word belongs to several tiers the generator picks one, preferring, in
-order: command, option, style, attribute, value, flag.
+order: command, option, plot style, style substyle, element modifier,
+coordinate, enumerated value, toggle, suboption.
 
-Some option heads are currently stricter than gnuplot: the dictionary records
-`xrange` with a minimum of four characters, so `set xr` is not highlighted even
-though gnuplot accepts it. This is a property of the upstream dictionary and is
-fixed there, not here.
+`set xr` is not highlighted because xrange is not on the abbreviation list
+above; its whole word is required.
+
+Two differences from the grammar are deliberate: a datablock body is inert
+here, where the grammar highlights its contents, and `!` marks only the shell
+escape itself because Vim cannot inject bash into the rest of the line.
 
 ==============================================================================
 6. REGENERATING                                         *gnuplot-regenerating*
