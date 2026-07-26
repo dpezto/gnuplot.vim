@@ -34,10 +34,11 @@ suffixes, and both string flavours.
 
 ### Abbreviations
 
-gnuplot lets most keywords be shortened, and so does this plugin — `set xran`
-highlights exactly like `set xrange`. The generated lists spell that as
-`xran[ge]`, which is `:syn-keyword`'s own notation for an optional tail, so the
-whole abbreviation system is carried over without a single regular expression.
+gnuplot lets most keywords be shortened, and the generated lists spell that as
+`p[lot]` — `:syn-keyword`'s own notation for an optional tail — so an
+abbreviation costs no regular expression at all. Which keywords may appear
+short is a deliberate choice rather than the full set; see
+[Known limits](#known-limits).
 
 ## Colours match the tree-sitter grammar
 
