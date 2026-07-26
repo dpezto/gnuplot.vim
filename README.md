@@ -95,6 +95,24 @@ New keywords arrive on their own: a weekly job compares the vendored
 `keywords.json` against tree-sitter-gnuplot and opens a PR when it has moved,
 regenerating the syntax file with it.
 
+## Upgrading from the pre-1.0 plugin
+
+1.0.0 is a ground-up rewrite. The repository was never tagged before it, so
+every plugin manager was tracking `main` directly and picks the rewrite up as
+an ordinary update. Three things change for anyone who had the old version:
+
+- **Highlight groups were all renamed.** The old file defined `gnuCmd`,
+  `gnuVar`, `gnuNumber`, `gnuDef` and a per-command family (`setOpt`,
+  `pltOpt`, `fitOpt`, `set_arroOpt`, …). None of those exist now; the groups
+  are the `gnuplot*` names listed in `:help gnuplot`. A colourscheme or
+  `highlight` override targeting an old name silently stops applying.
+- **`.gp` and `.pal` are no longer claimed.** `.gp` belongs to PARI/GP in the
+  stock Vim and Neovim runtimes, and detection now yields to it. Add your own
+  `autocmd` if you want either extension back.
+- **Abbreviations are opt-in.** The old file matched many shortened keywords;
+  only the near-universal ones are honoured now, so `set xr` no longer
+  highlights. See [Known limits](#known-limits) for why.
+
 ## Credits
 
 A ground-up rewrite following earlier work by
