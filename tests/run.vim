@@ -117,13 +117,13 @@ doautocmd BufRead
 call assert_notequal('gnuplot', &filetype, 'ftdetect must not claim .pal')
 
 " --- report -----------------------------------------------------------------
+" Vim in silent-ex mode (-es) discards :echo, so failures go to stderr, which
+" both editors pass through to the CI log.
 if empty(v:errors)
-  echo 'ok — all syntax assertions passed'
+  call writefile(['ok - all syntax assertions passed'], '/dev/stderr')
   qall!
 else
-  for s:err in v:errors
-    echo s:err
-  endfor
-  echo printf('FAILED: %d assertion(s)', len(v:errors))
+  call writefile(v:errors + [printf('FAILED: %d assertion(s)', len(v:errors))],
+        \ '/dev/stderr')
   cquit!
 endif
