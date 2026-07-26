@@ -61,7 +61,9 @@ call s:Word('set termi png', 'termi', 'gnuplotOption')
 
 " Words spelled like :syn arguments cannot be keywords; they are emitted as
 " matches instead. Without that they register as nothing at all.
-call s:Word('set style fill transparent solid 0.3', 'transparent', 'gnuplotValue')
+" The queries class fill words as @attribute, so they share the style group.
+call s:Word('set style fill transparent solid 0.3', 'transparent', 'gnuplotStyle')
+call s:Word('plot x title columnheader', 'columnheader', 'gnuplotBuiltinFunction')
 call s:Word('set xrange [0:1] noextend', 'noextend', 'gnuplotFlag')
 call s:Word('set palette cubehelix start 1', 'start', 'gnuplotOption')
 
