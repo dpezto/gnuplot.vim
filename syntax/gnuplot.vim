@@ -99,7 +99,7 @@ syn match   gnuplotBracket "[][(){}]"
 
 " An open range end (`[*:*]`, `A[*]`) is a wildcard; a bare `*` between
 " operands is multiplication. Only the bracket-adjacent form is special.
-syn match   gnuplotWildcard "\[\zs\*" 
+syn match   gnuplotWildcard "\[\zs\*"
 syn match   gnuplotWildcard "\*\ze[]:]"
 syn match   gnuplotWildcard "[:[]\zs\*\ze\]"
 

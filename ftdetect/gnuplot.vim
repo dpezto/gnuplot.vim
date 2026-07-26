@@ -1,8 +1,11 @@
 " Filetype detection for gnuplot scripts (Vim).
 "
-" Neovim is handled by ftdetect/gnuplot.lua, which registers with
-" vim.filetype.add() instead — that is the only way to take an extension the
-" stock runtime already claims, since :setfiletype will not override one.
+" Neovim is handled by ftdetect/gnuplot.lua, which registers through
+" vim.filetype.add() instead. That is the only way to claim an extension the
+" stock runtime already assigns: ftdetect scripts are sourced after the builtin
+" detection autocmd, and :setfiletype does nothing once a filetype is set.
+scriptencoding utf-8
+
 if has('nvim')
   finish
 endif
