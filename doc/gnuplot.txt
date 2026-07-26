@@ -24,7 +24,7 @@ recognise the same words with the same abbreviation rules.
 
 The filetype is set for these extensions: >
 
-    .gnu  .gnuplot  .gp  .gpi  .plot  .plt
+    .gnu  .gnuplot  .gpi  .plot  .plt
 
 the files `gnuplotrc` and `.gnuplot`,
 
@@ -32,12 +32,17 @@ and for any file whose first line is a shebang naming gnuplot: >
 
     #!/usr/bin/env gnuplot
 
-The stock runtimes assign `.gp` to PARI/GP. Since installing this plugin is a
-statement about what `.gp` means on your machine, it is claimed for gnuplot in
-both editors: Neovim registers through `vim.filetype.add()`, and Vim assigns
-the filetype outright, because |:setf| will not override one that is already
-set. Every other extension uses |:setf| and yields to anything that got there
-first.
+`.gp` is not claimed: the stock runtimes assign it to PARI/GP. Detection uses
+|:setf| under Vim, which yields to a filetype another runtime file already set,
+and `vim.filetype.add()` under Neovim.
+
+To claim it anyway, add this to your own config rather than to the plugin: >
+
+    " Neovim
+    vim.filetype.add({ extension = { gp = "gnuplot" } })
+
+    " Vim
+    autocmd BufNewFile,BufRead *.gp set filetype=gnuplot
 
 ==============================================================================
 3. HIGHLIGHT GROUPS                                           *gnuplot-groups*

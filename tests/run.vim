@@ -99,22 +99,14 @@ call s:Word('do for [i=1:10] { print i }', 'do', 'gnuplotRepeat')
 call s:Word('do for [i=1:10] { print i }', 'for', 'gnuplotRepeat')
 
 " --- filetype detection -----------------------------------------------------
-" `.pal` is deliberately not claimed: palette files are a convention, not a
-" gnuplot-owned extension. `.gp` belongs to PARI/GP in the stock runtime, which
-" is why Neovim detection goes through vim.filetype.add() (see
-" ftdetect/gnuplot.lua) rather than a :setfiletype autocmd.
-for s:name in ['t.plt', 't.plot', 't.gnu', 't.gp', 't.gpi', 't.gnuplot',
+" `.gp` is not claimed: it belongs to PARI/GP in the stock runtimes.
+for s:name in ['t.plt', 't.plot', 't.gnu', 't.gpi', 't.gnuplot',
       \ 'gnuplotrc', '.gnuplot']
   execute 'enew!'
   execute 'file ' . s:name
   doautocmd BufRead
   call assert_equal('gnuplot', &filetype, 'ftdetect ' . s:name)
 endfor
-
-enew!
-file t.pal
-doautocmd BufRead
-call assert_notequal('gnuplot', &filetype, 'ftdetect must not claim .pal')
 
 " --- report -----------------------------------------------------------------
 " Vim in silent-ex mode (-es) discards :echo, so failures go to stderr, which

@@ -1,9 +1,7 @@
 " Filetype detection for gnuplot scripts (Vim).
 "
 " Neovim is handled by ftdetect/gnuplot.lua, which registers through
-" vim.filetype.add() instead. That is the only way to claim an extension the
-" stock runtime already assigns: ftdetect scripts are sourced after the builtin
-" detection autocmd, and :setfiletype does nothing once a filetype is set.
+" vim.filetype.add() instead.
 scriptencoding utf-8
 
 if has('nvim')
@@ -14,15 +12,12 @@ endif
 " becomes part of the next pattern and stops it matching anything.
 augroup gnuplotFtdetect
   autocmd!
-  " Extensions the stock runtime leaves alone, so :setfiletype is enough.
+  " :setfiletype yields to a filetype another runtime file already set, which
+  " is what we want: `.gp` belongs to PARI/GP in the stock runtimes and is left
+  " to it.
   autocmd BufNewFile,BufRead *.gnu,*.gnuplot,*.gpi,*.plot,*.plt
         \ setfiletype gnuplot
   autocmd BufNewFile,BufRead gnuplotrc,.gnuplot setfiletype gnuplot
-  " Vim's runtime assigns `.gp` to PARI/GP, and :setfiletype will not override
-  " a filetype that is already set. Installing a gnuplot plugin is a statement
-  " about what `.gp` means here, and the Neovim side claims it too, so assign
-  " it outright rather than leaving the two editors inconsistent.
-  autocmd BufNewFile,BufRead *.gp set filetype=gnuplot
   " Scripts run through `gnuplot` with a shebang.
   autocmd BufNewFile,BufRead *
         \ if getline(1) =~# '^#!.*\<gnuplot\>' | setfiletype gnuplot | endif
