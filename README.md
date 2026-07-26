@@ -85,8 +85,11 @@ nvim --headless -u NONE -S tests/run.vim    # run the assertions
 ```
 
 Only the block between the generated markers in `syntax/gnuplot.vim` is
-machine written; the rest of the file is hand maintained. To pick up new
-keywords, copy `keywords.json` from the grammar repository and regenerate.
+machine written; the rest of the file is hand maintained.
+
+New keywords arrive on their own: a weekly job compares the vendored
+`keywords.json` against tree-sitter-gnuplot and opens a PR when it has moved,
+regenerating the syntax file with it.
 
 ## Citation
 

@@ -11,9 +11,16 @@ the markers (comments, strings, numbers, operators, control-flow words, the
 highlight links) is hand maintained and edited directly.
 
 To add or correct a keyword, fix it upstream in
-[tree-sitter-gnuplot](https://github.com/dpezto/tree-sitter-gnuplot), copy the
-refreshed `keywords.json` here, and regenerate. Keeping the two in step is the
-point of the arrangement; patching the generated block locally defeats it.
+[tree-sitter-gnuplot](https://github.com/dpezto/tree-sitter-gnuplot). Keeping
+the two in step is the point of the arrangement; patching the generated block
+locally defeats it.
+
+You do not normally have to copy the dictionary by hand: `sync-keywords.yml`
+compares the vendored `keywords.json` against the grammar's default branch every
+Monday and opens a PR when they differ, regenerating the syntax file in the same
+commit. Run it on demand from the Actions tab. Review those PRs rather than
+rubber-stamping them — a keyword whose tier changed moves between highlight
+groups, and one whose `min` changed alters which abbreviations are recognised.
 
 ## Development
 
