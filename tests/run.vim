@@ -67,6 +67,29 @@ call s:Word('plot x title columnheader', 'columnheader', 'gnuplotBuiltinFunction
 call s:Word('set xrange [0:1] noextend', 'noextend', 'gnuplotFlag')
 call s:Word('set palette cubehelix start 1', 'start', 'gnuplotOption')
 
+" --- literals the dictionary does not carry ---------------------------------
+" keywords.json is mined from the tier tokens only, so the grammar's bare
+" string literals never reach the generated block. They are hand-listed, and
+" these assertions are what notices when that list falls behind the grammar.
+call s:Word('plot x smooth convexhull', 'convexhull', 'gnuplotAttribute')
+call s:Word('plot x smooth kdensity bandwidth 0.5', 'bandwidth', 'gnuplotAttribute')
+call s:Word('plot "d" binary record=100', 'record', 'gnuplotAttribute')
+call s:Word('set pm3d lighting primary 0.5 spec2 0.2', 'primary', 'gnuplotOption')
+call s:Word('set pm3d lighting primary 0.5 spec2 0.2', 'spec2', 'gnuplotOption')
+call s:Word('set multiplot layout 2,2', 'layout', 'gnuplotOption')
+call s:Word('splot x with isosurface level 3', 'level', 'gnuplotStyle')
+call s:Word('set datafile missing "NaN"', 'missing', 'gnuplotOption')
+call s:Word('exit message "bye"', 'message', 'gnuplotValue')
+" `skip` and `end` are spelled like :syn arguments, so they can only be matches.
+call s:Word('plot "d" skip 2', 'skip', 'gnuplotAttribute')
+call s:Word('set key at beginning', 'beginning', 'gnuplotValue')
+" `system` is both a command and a string function; the call form must stay a
+" function, which is why the command is a match with a lookahead guard.
+call s:Word('system "ls"', 'system', 'gnuplotCommand')
+call s:Word('a = system("ls")', 'system', 'gnuplotBuiltinFunction')
+" Typographic unit suffixes fold into the number, longest spelling first.
+call s:Word('set size 1inch, 2mm', '1inch', 'gnuplotNumber')
+
 " datablock contents are inert
 call s:Word('$d << EOD', '$d', 'gnuplotDatablockName')
 call s:Word('set key noautotitle', 'noautotitle', 'gnuplotOption')
