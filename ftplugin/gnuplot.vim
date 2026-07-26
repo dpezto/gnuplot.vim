@@ -1,14 +1,16 @@
 " Vim filetype plugin
 " Language:   gnuplot 6
 " Maintainer: Dai López Jacinto <dpezto@gmail.com>
+scriptencoding utf-8
+
 
 if exists('b:did_ftplugin')
   finish
 endif
 let b:did_ftplugin = 1
 
-let s:cpo_save = &cpo
-set cpo&vim
+let s:cpo_save = &cpoptions
+set cpoptions&vim
 
 setlocal commentstring=#\ %s
 setlocal comments=:#
@@ -25,5 +27,5 @@ setlocal matchpairs+=<:>
 let b:undo_ftplugin = 'setlocal commentstring< comments< formatoptions<'
       \ . ' iskeyword< matchpairs<'
 
-let &cpo = s:cpo_save
+let &cpoptions = s:cpo_save
 unlet s:cpo_save

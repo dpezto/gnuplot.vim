@@ -19,8 +19,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-python@e9d6f990972a57673cdb72ec29e19d42ba28880f # v6
         with:
-          python-version: "3.x"
-      - run: pip install vim-vint
+          python-version: "3.12"
+      # vint still imports pkg_resources, which setuptools 81 removed and
+      # Python 3.13+ no longer bundles at all — hence both pins.
+      - run: pip install vim-vint "setuptools<81"
       - run: vint --style-problem ftdetect ftplugin syntax tests
 
   # syntax/gnuplot.vim is generated from keywords.json; a hand edit inside the

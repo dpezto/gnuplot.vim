@@ -11,13 +11,15 @@
 " `xr[ange]` — so the abbreviation rules are carried over exactly without a
 " single regex. Edit keywords.json and run `npm run gen:syntax`; do not edit
 " between the generated markers.
+scriptencoding utf-8
+
 
 if exists('b:current_syntax')
   finish
 endif
 
-let s:cpo_save = &cpo
-set cpo&vim
+let s:cpo_save = &cpoptions
+set cpoptions&vim
 
 " gnuplot identifiers are [A-Za-z_][A-Za-z0-9_]*, and several built-in
 " variables (GPVAL_TERM, STATS_mean_y) rely on '_' being a keyword character.
@@ -306,5 +308,5 @@ hi def link gnuplotRepeat          Repeat
 
 let b:current_syntax = 'gnuplot'
 
-let &cpo = s:cpo_save
+let &cpoptions = s:cpo_save
 unlet s:cpo_save

@@ -4,7 +4,9 @@
 "   nvim --headless -u NONE -S tests/run.vim
 "   vim  -es      -u NONE -S tests/run.vim
 
-set nocompatible
+scriptencoding utf-8
+
+set cpoptions&vim
 let s:root = expand('<sfile>:p:h:h')
 execute 'set runtimepath^=' . fnameescape(s:root)
 filetype plugin on
