@@ -11,6 +11,7 @@ authors:
   - given-names: Dai
     family-names: López Jacinto
     alias: dpezto
+    orcid: "https://orcid.org/0009-0009-6780-6977"
 repository-code: "https://github.com/dpezto/gnuplot.vim"
 license: MIT
 keywords:
