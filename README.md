@@ -1,7 +1,7 @@
 # gnuplot.vim
 
 [![CI](https://img.shields.io/github/actions/workflow/status/dpezto/gnuplot.vim/ci.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/dpezto/gnuplot.vim/actions/workflows/ci.yml)
-[![Codecov](https://img.shields.io/codecov/c/github/dpezto/gnuplot.vim?logo=codecov&logoColor=white)](https://codecov.io/gh/dpezto/gnuplot.vim)
+[![Codecov](https://codecov.io/gh/dpezto/gnuplot.vim/graph/badge.svg)](https://codecov.io/gh/dpezto/gnuplot.vim)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?logo=github&logoColor=white)](.github/CONTRIBUTING.md)
 
 Syntax highlighting for [gnuplot](http://www.gnuplot.info) 6 scripts.
@@ -86,20 +86,6 @@ itself, since Vim cannot inject bash into the rest of the line.
 npm run gen:syntax                          # regenerate from keywords.json
 npm run check:syntax                        # fail if the committed file is stale
 nvim --headless -u NONE -S tests/run.vim    # run the assertions
-```
-
-Coverage is measured with [covimerage](https://github.com/Vimjas/covimerage),
-which wraps the editor in `:profile` and converts the log into a Coverage.py
-data file. Both editors append to the same file, since `ftdetect/gnuplot.vim`
-short-circuits on `has('nvim')` and neither one alone reaches all of it:
-
-```sh
-pip install covimerage "setuptools<81"
-covimerage run --no-report --source syntax --source ftdetect --source ftplugin \
-  nvim --headless -u NONE -S tests/run.vim
-covimerage run --append --no-report --source syntax --source ftdetect --source ftplugin \
-  vim -es -u NONE -S tests/run.vim
-covimerage report
 ```
 
 Only the block between the generated markers in `syntax/gnuplot.vim` is
