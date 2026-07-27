@@ -1,8 +1,8 @@
 # gnuplot.vim
 
-[![ci](https://img.shields.io/github/actions/workflow/status/dpezto/gnuplot.vim/ci.yml?branch=main&label=ci)](https://github.com/dpezto/gnuplot.vim/actions/workflows/ci.yml)
-[![codecov](https://img.shields.io/codecov/c/github/dpezto/gnuplot.vim)](https://codecov.io/gh/dpezto/gnuplot.vim)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
+[![CI](https://img.shields.io/github/actions/workflow/status/dpezto/gnuplot.vim/ci.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/dpezto/gnuplot.vim/actions/workflows/ci.yml)
+[![Codecov](https://codecov.io/gh/dpezto/gnuplot.vim/graph/badge.svg)](https://codecov.io/gh/dpezto/gnuplot.vim)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?logo=github&logoColor=white)](.github/CONTRIBUTING.md)
 
 Syntax highlighting for [gnuplot](http://www.gnuplot.info) 6 scripts.
 
