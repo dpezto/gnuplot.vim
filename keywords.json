@@ -2193,7 +2193,7 @@
 		{
 			"kw": "acsplines",
 			"tier": "mod",
-			"min": -1,
+			"min": 3,
 			"parents": [
 				"smooth_options"
 			]
@@ -2470,7 +2470,7 @@
 		{
 			"kw": "csplines",
 			"tier": "mod",
-			"min": -1,
+			"min": 2,
 			"parents": [
 				"smooth_options"
 			]
@@ -3640,7 +3640,7 @@
 		{
 			"kw": "cbtics",
 			"tier": "opt",
-			"min": 5,
+			"min": 4,
 			"head": true
 		},
 		{
@@ -3821,7 +3821,7 @@
 		{
 			"kw": "grid",
 			"tier": "opt",
-			"min": 2,
+			"min": 1,
 			"head": true,
 			"parents": [
 				"grid"
@@ -4286,7 +4286,7 @@
 		{
 			"kw": "rtics",
 			"tier": "opt",
-			"min": 4,
+			"min": 3,
 			"head": true
 		},
 		{
@@ -4457,7 +4457,7 @@
 		{
 			"kw": "ttics",
 			"tier": "opt",
-			"min": 4,
+			"min": 3,
 			"head": true
 		},
 		{
@@ -4493,7 +4493,7 @@
 		{
 			"kw": "utics",
 			"tier": "opt",
-			"min": 4,
+			"min": 3,
 			"head": true
 		},
 		{
@@ -4563,7 +4563,7 @@
 		{
 			"kw": "vtics",
 			"tier": "opt",
-			"min": 4,
+			"min": 3,
 			"head": true
 		},
 		{
@@ -4599,7 +4599,7 @@
 		{
 			"kw": "vxtics",
 			"tier": "opt",
-			"min": 5,
+			"min": 4,
 			"head": true
 		},
 		{
@@ -4635,7 +4635,7 @@
 		{
 			"kw": "vytics",
 			"tier": "opt",
-			"min": 5,
+			"min": 4,
 			"head": true
 		},
 		{
@@ -4671,7 +4671,7 @@
 		{
 			"kw": "vztics",
 			"tier": "opt",
-			"min": 5,
+			"min": 4,
 			"head": true
 		},
 		{
@@ -4716,7 +4716,7 @@
 		{
 			"kw": "x2tics",
 			"tier": "opt",
-			"min": 5,
+			"min": 4,
 			"head": true
 		},
 		{
@@ -4758,7 +4758,7 @@
 		{
 			"kw": "xtics",
 			"tier": "opt",
-			"min": 4,
+			"min": 3,
 			"head": true
 		},
 		{
@@ -4803,7 +4803,7 @@
 		{
 			"kw": "xytics",
 			"tier": "opt",
-			"min": 5,
+			"min": 4,
 			"head": true
 		},
 		{
@@ -4845,7 +4845,7 @@
 		{
 			"kw": "y2tics",
 			"tier": "opt",
-			"min": 5,
+			"min": 4,
 			"head": true
 		},
 		{
@@ -4887,7 +4887,7 @@
 		{
 			"kw": "ytics",
 			"tier": "opt",
-			"min": 4,
+			"min": 3,
 			"head": true
 		},
 		{
@@ -4947,7 +4947,7 @@
 		{
 			"kw": "ztics",
 			"tier": "opt",
-			"min": 4,
+			"min": 3,
 			"head": true
 		},
 		{
