@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://github.com/dpezto/gnuplot.vim/compare/v1.0.0...v1.1.0) (2026-07-30)
+
+
+### Features
+
+* **ci:** measure VimL coverage with covimerage and publish it to Codecov ([aac94f2](https://github.com/dpezto/gnuplot.vim/commit/aac94f28dfc64f84520602db334aeb8e4c704962))
+* **ci:** measure VimL coverage with covimerage and publish it to Codecov ([cdbbfbb](https://github.com/dpezto/gnuplot.vim/commit/cdbbfbb94b22fdb0929b42b35adecb6c07b7935a))
+
+
+### Bug Fixes
+
+* **keywords:** sync the dictionary from tree-sitter-gnuplot ([9e456d2](https://github.com/dpezto/gnuplot.vim/commit/9e456d2cf186379591795da63e2590ca3c75cf2a))
+* **keywords:** sync the dictionary from tree-sitter-gnuplot@f68ff1f ([6e06f2f](https://github.com/dpezto/gnuplot.vim/commit/6e06f2ffd103ec3a1f50225ced3710a3b2f0cba4))
+
 ## 1.0.0 (2026-07-26)
 
 
