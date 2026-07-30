@@ -5,10 +5,11 @@ CONTENTS                                                    *gnuplot-contents*
 
     1. Introduction ........................... |gnuplot-introduction|
     2. Filetype detection ..................... |gnuplot-ftdetect|
-    3. Highlight groups ....................... |gnuplot-groups|
-    4. Abbreviations .......................... |gnuplot-abbreviations|
-    5. Known limits ........................... |gnuplot-limits|
-    6. Regenerating ........................... |gnuplot-regenerating|
+    3. Editor settings ........................ |gnuplot-settings|
+    4. Highlight groups ....................... |gnuplot-groups|
+    5. Abbreviations .......................... |gnuplot-abbreviations|
+    6. Known limits ........................... |gnuplot-limits|
+    7. Regenerating ........................... |gnuplot-regenerating|
 
 ==============================================================================
 1. INTRODUCTION                                         *gnuplot-introduction*
@@ -45,7 +46,27 @@ To claim it anyway, add this to your own config rather than to the plugin: >
     autocmd BufNewFile,BufRead *.gp set filetype=gnuplot
 
 ==============================================================================
-3. HIGHLIGHT GROUPS                                           *gnuplot-groups*
+3. EDITOR SETTINGS                                          *gnuplot-settings*
+
+The ftplugin sets a few buffer-local options:
+
+    'commentstring' `# %s` and 'comments' `:#`, so commenting plugins and
+    |gq| know the comment leader.
+
+    'formatoptions' loses `t` and gains `croql`: comments wrap and continue,
+    code does not auto-wrap.
+
+    'iskeyword' gains `_`, because gnuplot identifiers and its built-in
+    variables (`GPVAL_TERM`, `STATS_mean_y`) contain underscores.
+
+    'matchpairs' gains `<:>`, so |%| jumps between the brackets in
+    `set xrange [0:1]` style pairs.
+
+Everything is registered in |b:undo_ftplugin|, so leaving the filetype
+restores your defaults.
+
+==============================================================================
+4. HIGHLIGHT GROUPS                                           *gnuplot-groups*
 
 The groups mirror the capture taxonomy of the tree-sitter grammar, where an
 alias names the clause family a word belongs to rather than the word itself.
@@ -83,7 +104,7 @@ Override a link in your |vimrc| after the syntax loads: >
     autocmd ColorScheme * hi link gnuplotStyle Special
 
 ==============================================================================
-4. ABBREVIATIONS                                       *gnuplot-abbreviations*
+5. ABBREVIATIONS                                       *gnuplot-abbreviations*
 
 gnuplot lets most keywords be shortened. The generated lists spell that as
 `p[lot]`, which is |:syn-keyword|'s own notation for an optional tail, so an
@@ -96,7 +117,7 @@ abbreviation would make most single letters keywords -- fifty-one of them
 shorten to one character -- so `a = 42` and a loop counter would light up.
 
 ==============================================================================
-5. KNOWN LIMITS                                               *gnuplot-limits*
+6. KNOWN LIMITS                                               *gnuplot-limits*
 
 Vim keywords carry no context, so a word that means two things in gnuplot gets
 one colour. `p` opens a plot command and also names the `points` style; the
@@ -115,7 +136,7 @@ here, where the grammar highlights its contents, and `!` marks only the shell
 escape itself because Vim cannot inject bash into the rest of the line.
 
 ==============================================================================
-6. REGENERATING                                         *gnuplot-regenerating*
+7. REGENERATING                                         *gnuplot-regenerating*
 
 After refreshing `keywords.json` from the grammar: >
 
