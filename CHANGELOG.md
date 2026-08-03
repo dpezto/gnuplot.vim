@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/dpezto/gnuplot.vim/compare/v1.1.0...v1.1.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **keywords:** sync the dictionary from tree-sitter-gnuplot ([9af83fa](https://github.com/dpezto/gnuplot.vim/commit/9af83fa527f0b76dd3e5c410bb231b3d78537ea0))
+* **keywords:** sync the dictionary from tree-sitter-gnuplot@ac4b9db ([03e8822](https://github.com/dpezto/gnuplot.vim/commit/03e8822dceebc54518b00940419cea3b58097adb))
+
 ## [1.1.0](https://github.com/dpezto/gnuplot.vim/compare/v1.0.0...v1.1.0) (2026-07-30)
 
 
