@@ -103,7 +103,7 @@
 		{
 			"kw": "bottom",
 			"tier": "arg",
-			"min": 3
+			"min": 1
 		},
 		{
 			"kw": "bs",
@@ -113,7 +113,7 @@
 		{
 			"kw": "bspline",
 			"tier": "arg",
-			"min": 1,
+			"min": 2,
 			"parents": [
 				"cntrparam"
 			]
@@ -131,7 +131,7 @@
 		{
 			"kw": "center",
 			"tier": "arg",
-			"min": 6
+			"min": 1
 		},
 		{
 			"kw": "charsize",
@@ -190,7 +190,7 @@
 		{
 			"kw": "cubicspline",
 			"tier": "arg",
-			"min": 1,
+			"min": 2,
 			"parents": [
 				"cntrparam"
 			]
@@ -461,7 +461,7 @@
 		{
 			"kw": "left",
 			"tier": "arg",
-			"min": 3
+			"min": 1
 		},
 		{
 			"kw": "Left",
@@ -769,7 +769,7 @@
 		{
 			"kw": "radial",
 			"tier": "arg",
-			"min": 1,
+			"min": 2,
 			"parents": [
 				"clip"
 			]
@@ -777,7 +777,7 @@
 		{
 			"kw": "radians",
 			"tier": "arg",
-			"min": 1,
+			"min": 2,
 			"parents": [
 				"angles"
 			]
@@ -832,7 +832,7 @@
 		{
 			"kw": "right",
 			"tier": "arg",
-			"min": 3,
+			"min": 1,
 			"parents": [
 				"style_opts"
 			]
@@ -972,7 +972,7 @@
 		{
 			"kw": "top",
 			"tier": "arg",
-			"min": 2
+			"min": 1
 		},
 		{
 			"kw": "trianglepattern",
@@ -990,7 +990,7 @@
 		{
 			"kw": "two",
 			"tier": "arg",
-			"min": 1,
+			"min": 2,
 			"parents": [
 				"clip"
 			]
