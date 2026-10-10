@@ -13,6 +13,9 @@ filetype plugin on
 syntax enable
 
 let v:errors = []
+" A script error (bad expression, unknown function) skips its assertion
+" without touching v:errors, and nvim still exits 0, so it is caught below.
+let v:errmsg = ''
 
 " Raw syntax group at (line, col). Deliberately NOT synIDtrans: Vim collapses
 " Conditional, Repeat and Keyword all into Statement, which would make most of
@@ -149,6 +152,10 @@ function! s:Report(lines) abort
     endfor
   endif
 endfunction
+
+if !empty(v:errmsg)
+  call add(v:errors, 'script error: ' . v:errmsg)
+endif
 
 if empty(v:errors)
   call s:Report(['ok - all syntax assertions passed'])
