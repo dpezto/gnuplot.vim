@@ -26,8 +26,9 @@ set cpoptions&vim
 syn iskeyword @,48-57,_
 
 " Comments ------------------------------------------------------------------
-" A trailing backslash continues a comment onto the next line.
-syn match   gnuplotComment "#.*\%(\\\n.*\)*$" contains=gnuplotTodo,@Spell
+" A trailing backslash continues a comment onto the next line, so the comment
+" ends only at an end of line that is not preceded by one.
+syn region  gnuplotComment start="#" end="\\\@<!$" contains=gnuplotTodo,@Spell
 syn keyword gnuplotTodo contained TODO FIXME XXX BUG NOTE HACK
 
 " Strings -------------------------------------------------------------------
