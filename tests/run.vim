@@ -119,6 +119,9 @@ call s:Line(['$d << EOD'] + repeat(['plot 1 # x'], 200) + ['EOD'], 150,
 call s:Line(['$d << EOD', '  EOD', 'plot 1'], 2, 'EOD', 'gnuplotDatablock')
 call s:Line(['$d << EOD', '  EOD', 'plot 1'], 3, 'plot', 'gnuplotDatablock')
 call s:Line(['$d << EOD', '1 2', 'EODxyz', 'plot 1'], 4, 'plot', 'gnuplotCommand')
+" The header may follow another command on the same line.
+call s:Line(['print 1; $d << EOD', '1 2', 'EOD'], 1, '$d', 'gnuplotDatablockName')
+call s:Line(['print 1; $d << EOD', '1 2', 'EOD'], 2, '1', 'gnuplotDatablock')
 call s:Word('set key noautotitle', 'noautotitle', 'gnuplotOption')
 
 " --- tiers ------------------------------------------------------------------
