@@ -364,6 +364,11 @@ syn keyword gnuplotConditional if else
 syn keyword gnuplotRepeat      do while for in
 syn keyword gnuplotCommand     array sum
 
+" Synchronization -----------------------------------------------------------
+" Datablocks have no length limit, so no fixed lookback can tell whether a line
+" sits inside one. Parse from the top of the file instead.
+syn sync fromstart
+
 " Highlight links -----------------------------------------------------------
 " The group names come from the grammar's capture taxonomy, where an alias
 " names the clause family a word belongs to rather than the word itself: `cmd`

@@ -38,6 +38,22 @@ function! s:Word(text, word, expected) abort
         \ printf('%s  ->  %s', a:text, a:word))
 endfunction
 
+" Assert the group under the first occurrence of {word} on line {lnum} of a
+" multi-line buffer. Queried bottom-up, so the answer depends on the file
+" syncing from the top rather than on what was parsed before.
+function! s:Line(lines, lnum, word, expected) abort
+  enew!
+  setlocal filetype=gnuplot
+  call setline(1, a:lines)
+  let l:col = stridx(a:lines[a:lnum - 1], a:word) + 1
+  if l:col <= 0
+    call add(v:errors, printf('fixture error: %s not on line %d', a:word, a:lnum))
+    return
+  endif
+  call assert_equal(a:expected, s:Group(a:lnum, l:col),
+        \ printf('%s  ->  line %d %s', join(a:lines, ' | '), a:lnum, a:word))
+endfunction
+
 " --- commands ---------------------------------------------------------------
 call s:Word('plot sin(x)', 'plot', 'gnuplotCommand')
 call s:Word('p sin(x)', 'p', 'gnuplotCommand')
@@ -95,6 +111,9 @@ call s:Word('set size 1inch, 2mm', '1inch', 'gnuplotNumber')
 
 " datablock contents are inert
 call s:Word('$d << EOD', '$d', 'gnuplotDatablockName')
+" A deep line reads as data even when nothing above it was parsed first.
+call s:Line(['$d << EOD'] + repeat(['plot 1 # x'], 200) + ['EOD'], 150,
+      \ 'plot', 'gnuplotDatablock')
 call s:Word('set key noautotitle', 'noautotitle', 'gnuplotOption')
 
 " --- tiers ------------------------------------------------------------------
