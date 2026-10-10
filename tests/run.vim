@@ -165,7 +165,6 @@ call s:Word('a = myfunc(2)', 'myfunc', 'gnuplotFunction')
 " gnuplot allows whitespace before the argument list.
 call s:Word('print sin (0)', 'sin', 'gnuplotBuiltinFunction')
 call s:Word('a = myfunc (2)', 'myfunc', 'gnuplotFunction')
-call s:Word('if (a > 1) { print "y" }', 'if', 'gnuplotConditional')
 
 " --- control flow -----------------------------------------------------------
 call s:Word('if (a > 1) { print "y" }', 'if', 'gnuplotConditional')
