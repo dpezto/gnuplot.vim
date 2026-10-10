@@ -65,9 +65,11 @@ syn match   gnuplotMacro "@\h\w*"
 " Numbers -------------------------------------------------------------------
 " gnuplot folds a unit suffix into the number itself (10cm, 3.0in, 0.5pt). The
 " full set is the grammar's typographic-unit alternation; `inch` has to precede
-" `in` or the longer spelling never matches.
-syn match   gnuplotNumber "\<\d\+\%(\.\d*\)\?\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\>"
-syn match   gnuplotNumber "\<\.\d\+\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\>"
+" `in` or the longer spelling never matches. A trailing dot (`1.`) belongs to
+" the number, and gnuplot reads a dot before a digit as a number start (`.5`)
+" even right after an identifier.
+syn match   gnuplotNumber "\<\d\+\%(\.\d*\)\?\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\w\@!"
+syn match   gnuplotNumber "\.\d\+\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\>"
 syn match   gnuplotNumber "\<0[xX]\x\+\>"
 
 " Built-in variables --------------------------------------------------------
@@ -93,7 +95,8 @@ syn match   gnuplotBuiltinFunction "\<\%(column\|columnhead\%(er\)\?\|stringcolu
 syn match   gnuplotBuiltinFunction "\<\%(time\%(column\)\?\|strftime\|strptime\|tm_\w\+\|weekdate_\%(iso\|cdc\)\)\ze("
 
 " Operators -----------------------------------------------------------------
-syn match   gnuplotOperator "[-+*/%^!~?:.,]"
+" A dot before a digit starts a number, not a concatenation.
+syn match   gnuplotOperator "[-+*/%^!~?:,]\|\.\d\@!"
 syn match   gnuplotOperator "\*\*"
 syn match   gnuplotOperator "[=!<>]="
 syn match   gnuplotOperator "[<>]"
