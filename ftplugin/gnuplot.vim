@@ -21,11 +21,8 @@ setlocal formatoptions+=croql
 " contain underscores.
 setlocal iskeyword+=_
 
-" `set xrange [0:1]` and friends: treat brackets as matched pairs.
-setlocal matchpairs+=<:>
-
 let b:undo_ftplugin = 'setlocal commentstring< comments< formatoptions<'
-      \ . ' iskeyword< matchpairs<'
+      \ . ' iskeyword<'
 
 let &cpoptions = s:cpo_save
 unlet s:cpo_save

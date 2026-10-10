@@ -172,6 +172,13 @@ call s:Word('if (a > 1) { print "y" }', 'if', 'gnuplotConditional')
 call s:Word('do for [i=1:10] { print i }', 'do', 'gnuplotRepeat')
 call s:Word('do for [i=1:10] { print i }', 'for', 'gnuplotRepeat')
 
+" --- ftplugin ---------------------------------------------------------------
+" `<` and `>` are comparisons in gnuplot, never delimiters, so `%` must not
+" pair them.
+enew!
+setlocal filetype=gnuplot
+call assert_equal(-1, stridx(&l:matchpairs, '<:>'), 'matchpairs has no <:>')
+
 " --- filetype detection -----------------------------------------------------
 " `.gp` is not claimed: it belongs to PARI/GP in the stock runtimes.
 for s:name in ['t.plt', 't.plot', 't.gnu', 't.gpi', 't.gnuplot',
