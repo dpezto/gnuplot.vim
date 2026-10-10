@@ -26,20 +26,27 @@ set cpoptions&vim
 syn iskeyword @,48-57,_
 
 " Comments ------------------------------------------------------------------
-" A trailing backslash continues a comment onto the next line.
-syn match   gnuplotComment "#.*\%(\\\n.*\)*$" contains=gnuplotTodo,@Spell
+" A trailing backslash continues a comment onto the next line, so the comment
+" ends only at an end of line that is not preceded by one.
+syn region  gnuplotComment start="#" end="\\\@<!$" contains=gnuplotTodo,@Spell
 syn keyword gnuplotTodo contained TODO FIXME XXX BUG NOTE HACK
 
 " Strings -------------------------------------------------------------------
-" Double quotes interpret backslash escapes; single quotes do not.
+" Double quotes interpret backslash escapes; single quotes do not. gnuplot
+" closes an unterminated string at the end of the line unless a trailing
+" backslash continues it.
 syn match   gnuplotEscape contained "\\\%([\\abfnrtv"']\|[0-7]\{1,3}\|x\x\{1,2}\|u\x\{4}\|U\x\{8}\)"
 syn match   gnuplotFormat  contained "%[-+ #0]*\d*\%(\.\d\+\)\?[hlLqjzt]*[diouxXeEfgGcsSpP%]"
-syn region  gnuplotString  start=+"+ skip=+\\.+ end=+"+ contains=gnuplotEscape,gnuplotFormat,@Spell
-syn region  gnuplotString  start=+'+ end=+'+ contains=gnuplotFormat,@Spell
+syn region  gnuplotString  start=+"+ skip=+\\.+ end=+"\|\\\@<!$+ contains=gnuplotEscape,gnuplotFormat,@Spell
+syn region  gnuplotString  start=+'+ end=+'\|\\\@<!$+ contains=gnuplotFormat,@Spell
 
 " Datablocks ----------------------------------------------------------------
 " `$data << EOD ... EOD` — the terminator is user-chosen, so match the whole
-" block generically rather than pinning it to EOD.
+" block generically rather than pinning it to EOD. The header may follow
+" another command on the same line (`print 1; $d << EOD`), and `function $f <<
+" EOF` blocks take the same form. gnuplot ends the block at the first line that
+" begins with the terminator in column one, so `  EOD` is still data and
+" `EODxyz` closes it.
 " Column references in a using spec (`using ($1+$2)`). Digits, so this can
 " never collide with the `$name` forms below.
 syn match   gnuplotColumnRef "\$\d\+"
@@ -49,7 +56,7 @@ syn match   gnuplotColumnRef "\$\d\+"
 " on `$name` would out-rank the region and stop it opening at all.
 syn match   gnuplotDatablockRef "\$\h\w*"
 syn region  gnuplotDatablock matchgroup=gnuplotDatablockName contains=NONE
-      \ start="^\s*\$\h\w*\s*<<\s*\z(\h\w*\)" end="^\s*\z1\s*$"
+      \ start="\$\h\w*\s*<<\s*\z(\h\w*\)" end="^\z1"
 syn match   gnuplotOperator "<<" containedin=gnuplotDatablockName
 
 " Macros --------------------------------------------------------------------
@@ -58,9 +65,11 @@ syn match   gnuplotMacro "@\h\w*"
 " Numbers -------------------------------------------------------------------
 " gnuplot folds a unit suffix into the number itself (10cm, 3.0in, 0.5pt). The
 " full set is the grammar's typographic-unit alternation; `inch` has to precede
-" `in` or the longer spelling never matches.
-syn match   gnuplotNumber "\<\d\+\%(\.\d*\)\?\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\>"
-syn match   gnuplotNumber "\<\.\d\+\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\>"
+" `in` or the longer spelling never matches. A trailing dot (`1.`) belongs to
+" the number, and gnuplot reads a dot before a digit as a number start (`.5`)
+" even right after an identifier.
+syn match   gnuplotNumber "\<\d\+\%(\.\d*\)\?\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\w\@!"
+syn match   gnuplotNumber "\.\d\+\%([eE][-+]\?\d\+\)\?\%(cm\|inch\|in\|mm\|pt\|pc\|bp\|dd\|cc\|pi\)\?\>"
 syn match   gnuplotNumber "\<0[xX]\x\+\>"
 
 " Built-in variables --------------------------------------------------------
@@ -75,18 +84,19 @@ syn match   gnuplotBuiltinVar "\<\w\+_\%(records\|headers\|outofrange\|invalid\|
 syn keyword gnuplotBuiltinVar GNUTERM VoxelDistance GridDistance
 
 " Functions -----------------------------------------------------------------
-" Any identifier immediately followed by '(' reads as a call; the built-in list
+" Any identifier followed by '(' reads as a call; the built-in list
 " is defined afterwards so it wins on the same match position.
-syn match   gnuplotFunction "\<\h\w*\ze("
-syn match   gnuplotBuiltinFunction "\<\%(abs\|acosh\|acos\|airy\|arg\|asinh\|asin\|atan2\|atanh\|atan\|cbrt\|ceil\|conj\|cosh\|cos\|exp\|floor\|imag\|int\|log10\|log\|norm\|rand\|real\|round\|sgn\|sinh\|sin\|sqrt\|tanh\|tan\)\ze("
-syn match   gnuplotBuiltinFunction "\<\%(bes[ijy][01n]\|Ai\|Bi\|Bessel[HIJKY]1\?2\?\|Elliptic[EKP]i\?\|erfc\|erfi\|erf\|expint\|gamma\|ibeta\|igamma\|inverf\|invibeta\|invigamma\|invnorm\|LambertW\|lgamma\|lnGamma\|SynchrotronF\|uigamma\|voigt\|zeta\)\ze("
-syn match   gnuplotBuiltinFunction "\<\%(cdawson\|cerf\|faddeeva\|Fresnel[CS]\|VP\%(_fwhm\)\?\)\ze("
-syn match   gnuplotBuiltinFunction "\<\%(gprintf\|sprintf\|strlen\|strstrt\|substr\|split\|join\|trim\|word\|words\|system\)\ze("
-syn match   gnuplotBuiltinFunction "\<\%(column\|columnhead\%(er\)\?\|stringcolumn\|strcol\|exists\|valid\|value\|hsv2rgb\|palette\|rgbcolor\|voxel\|index\)\ze("
-syn match   gnuplotBuiltinFunction "\<\%(time\%(column\)\?\|strftime\|strptime\|tm_\w\+\|weekdate_\%(iso\|cdc\)\)\ze("
+syn match   gnuplotFunction "\<\h\w*\ze\s*("
+syn match   gnuplotBuiltinFunction "\<\%(abs\|acosh\|acos\|airy\|arg\|asinh\|asin\|atan2\|atanh\|atan\|cbrt\|ceil\|conj\|cosh\|cos\|exp\|floor\|imag\|int\|log10\|log\|norm\|rand\|real\|round\|sgn\|sinh\|sin\|sqrt\|tanh\|tan\)\ze\s*("
+syn match   gnuplotBuiltinFunction "\<\%(bes[ijy][01n]\|Ai\|Bi\|Bessel[HIJKY]1\?2\?\|Elliptic[EKP]i\?\|erfc\|erfi\|erf\|expint\|gamma\|ibeta\|igamma\|inverf\|invibeta\|invigamma\|invnorm\|LambertW\|lgamma\|lnGamma\|SynchrotronF\|uigamma\|voigt\|zeta\)\ze\s*("
+syn match   gnuplotBuiltinFunction "\<\%(cdawson\|cerf\|faddeeva\|Fresnel[CS]\|VP\%(_fwhm\)\?\)\ze\s*("
+syn match   gnuplotBuiltinFunction "\<\%(gprintf\|sprintf\|strlen\|strstrt\|substr\|split\|join\|trim\|word\|words\|system\)\ze\s*("
+syn match   gnuplotBuiltinFunction "\<\%(column\|columnhead\%(er\)\?\|stringcolumn\|strcol\|exists\|valid\|value\|hsv2rgb\|palette\|rgbcolor\|voxel\|index\)\ze\s*("
+syn match   gnuplotBuiltinFunction "\<\%(time\%(column\)\?\|strftime\|strptime\|tm_\w\+\|weekdate_\%(iso\|cdc\)\)\ze\s*("
 
 " Operators -----------------------------------------------------------------
-syn match   gnuplotOperator "[-+*/%^!~?:.,]"
+" A dot before a digit starts a number, not a concatenation.
+syn match   gnuplotOperator "[-+*/%^!~?:,]\|\.\d\@!"
 syn match   gnuplotOperator "\*\*"
 syn match   gnuplotOperator "[=!<>]="
 syn match   gnuplotOperator "[<>]"
@@ -363,6 +373,11 @@ syn match   gnuplotValue     "\<end\>"
 syn keyword gnuplotConditional if else
 syn keyword gnuplotRepeat      do while for in
 syn keyword gnuplotCommand     array sum
+
+" Synchronization -----------------------------------------------------------
+" Datablocks have no length limit, so no fixed lookback can tell whether a line
+" sits inside one. Parse from the top of the file instead.
+syn sync fromstart
 
 " Highlight links -----------------------------------------------------------
 " The group names come from the grammar's capture taxonomy, where an alias

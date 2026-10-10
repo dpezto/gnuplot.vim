@@ -59,9 +59,6 @@ The ftplugin sets a few buffer-local options:
     'iskeyword' gains `_`, because gnuplot identifiers and its built-in
     variables (`GPVAL_TERM`, `STATS_mean_y`) contain underscores.
 
-    'matchpairs' gains `<:>`, so |%| jumps between the brackets in
-    `set xrange [0:1]` style pairs.
-
 Everything is registered in |b:undo_ftplugin|, so leaving the filetype
 restores your defaults.
 

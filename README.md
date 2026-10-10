@@ -32,8 +32,8 @@ characters they both highlight.
   values, plot styles, plot-element modifiers, terminal names, built-in
   functions and variables, datablocks, macros, numbers with unit suffixes,
   and both string flavours.
-- Sensible buffer-local editor settings (comments, `iskeyword`,
-  `matchpairs`), all undone by `b:undo_ftplugin`.
+- Sensible buffer-local editor settings (comments, `iskeyword`), all undone
+  by `b:undo_ftplugin`.
 - No commands, no mappings, no global options. Nothing to configure.
 - Pure Vim script.
 
@@ -110,8 +110,6 @@ The ftplugin sets a few buffer-local options:
   code does not auto-wrap.
 - `iskeyword+=_`, because gnuplot identifiers and its built-in variables
   (`GPVAL_TERM`, `STATS_mean_y`) contain underscores.
-- `matchpairs+=<:>`, so `%` jumps between the brackets in
-  `set xrange [0:1]` style pairs.
 
 All of it is registered in `b:undo_ftplugin`, so `:setfiletype` away from
 gnuplot restores your defaults.
