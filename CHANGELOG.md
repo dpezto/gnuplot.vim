@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.1](https://github.com/dpezto/gnuplot.vim/compare/v1.1.0...v1.1.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* **ftplugin:** stop pairing &lt; and &gt; for % ([66d05a2](https://github.com/dpezto/gnuplot.vim/commit/66d05a2d6de11bbf1b57257c45fad74559b900c9))
+* **keywords:** sync the dictionary from tree-sitter-gnuplot ([9af83fa](https://github.com/dpezto/gnuplot.vim/commit/9af83fa527f0b76dd3e5c410bb231b3d78537ea0))
+* **keywords:** sync the dictionary from tree-sitter-gnuplot@ac4b9db ([03e8822](https://github.com/dpezto/gnuplot.vim/commit/03e8822dceebc54518b00940419cea3b58097adb))
+* syntax and ftplugin fixes ([077495d](https://github.com/dpezto/gnuplot.vim/commit/077495d70377395b265b1feac8ff94ff9fb4b2e1))
+* **syntax:** close unterminated strings at the end of the line ([1828461](https://github.com/dpezto/gnuplot.vim/commit/182846151e31bd97c906cc3a7f84439ad03c1d6a))
+* **syntax:** continue comments across a trailing backslash ([39ecc52](https://github.com/dpezto/gnuplot.vim/commit/39ecc52af29f7de9f71b296e1ab8fd6a4c5d3f85))
+* **syntax:** end datablocks where gnuplot does ([a4f99b0](https://github.com/dpezto/gnuplot.vim/commit/a4f99b0947d55bac679f9f861124e911155d16ee))
+* **syntax:** highlight calls with a space before the parenthesis ([effa63b](https://github.com/dpezto/gnuplot.vim/commit/effa63b751a1a0cdf81623ba08c1d6384cc2eb92))
+* **syntax:** keep the dot in .5 and 1. inside the number ([82ecd2c](https://github.com/dpezto/gnuplot.vim/commit/82ecd2c0360f24b9df7b15c5b760ad6e9fb37854))
+* **syntax:** open datablocks that follow another command ([c20bea1](https://github.com/dpezto/gnuplot.vim/commit/c20bea18ea42fd92ebb6070470c8bd397df5aaf4))
+* **syntax:** sync from the start of the file ([15010ed](https://github.com/dpezto/gnuplot.vim/commit/15010ed4f5ba4101c2c3610345766b4e1140151a))
+
 ## [1.1.0](https://github.com/dpezto/gnuplot.vim/compare/v1.0.0...v1.1.0) (2026-07-30)
 
 
