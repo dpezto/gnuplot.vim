@@ -162,6 +162,10 @@ call s:Word('print STATS_mean_y', 'STATS_mean_y', 'gnuplotBuiltinVar')
 " --- functions --------------------------------------------------------------
 call s:Word('plot sin(x)', 'sin', 'gnuplotBuiltinFunction')
 call s:Word('a = myfunc(2)', 'myfunc', 'gnuplotFunction')
+" gnuplot allows whitespace before the argument list.
+call s:Word('print sin (0)', 'sin', 'gnuplotBuiltinFunction')
+call s:Word('a = myfunc (2)', 'myfunc', 'gnuplotFunction')
+call s:Word('if (a > 1) { print "y" }', 'if', 'gnuplotConditional')
 
 " --- control flow -----------------------------------------------------------
 call s:Word('if (a > 1) { print "y" }', 'if', 'gnuplotConditional')
