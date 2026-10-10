@@ -114,6 +114,11 @@ call s:Word('$d << EOD', '$d', 'gnuplotDatablockName')
 " A deep line reads as data even when nothing above it was parsed first.
 call s:Line(['$d << EOD'] + repeat(['plot 1 # x'], 200) + ['EOD'], 150,
       \ 'plot', 'gnuplotDatablock')
+" gnuplot ends the block on the first line starting with the terminator in
+" column one: `  EOD` is data, `EODxyz` closes the block.
+call s:Line(['$d << EOD', '  EOD', 'plot 1'], 2, 'EOD', 'gnuplotDatablock')
+call s:Line(['$d << EOD', '  EOD', 'plot 1'], 3, 'plot', 'gnuplotDatablock')
+call s:Line(['$d << EOD', '1 2', 'EODxyz', 'plot 1'], 4, 'plot', 'gnuplotCommand')
 call s:Word('set key noautotitle', 'noautotitle', 'gnuplotOption')
 
 " --- tiers ------------------------------------------------------------------

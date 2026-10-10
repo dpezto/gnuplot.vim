@@ -39,7 +39,9 @@ syn region  gnuplotString  start=+'+ end=+'+ contains=gnuplotFormat,@Spell
 
 " Datablocks ----------------------------------------------------------------
 " `$data << EOD ... EOD` — the terminator is user-chosen, so match the whole
-" block generically rather than pinning it to EOD.
+" block generically rather than pinning it to EOD. gnuplot ends the block at
+" the first line that begins with the terminator in column one, so `  EOD` is
+" still data and `EODxyz` closes it.
 " Column references in a using spec (`using ($1+$2)`). Digits, so this can
 " never collide with the `$name` forms below.
 syn match   gnuplotColumnRef "\$\d\+"
@@ -49,7 +51,7 @@ syn match   gnuplotColumnRef "\$\d\+"
 " on `$name` would out-rank the region and stop it opening at all.
 syn match   gnuplotDatablockRef "\$\h\w*"
 syn region  gnuplotDatablock matchgroup=gnuplotDatablockName contains=NONE
-      \ start="^\s*\$\h\w*\s*<<\s*\z(\h\w*\)" end="^\s*\z1\s*$"
+      \ start="^\s*\$\h\w*\s*<<\s*\z(\h\w*\)" end="^\z1"
 syn match   gnuplotOperator "<<" containedin=gnuplotDatablockName
 
 " Macros --------------------------------------------------------------------
