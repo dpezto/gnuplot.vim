@@ -32,11 +32,13 @@ syn region  gnuplotComment start="#" end="\\\@<!$" contains=gnuplotTodo,@Spell
 syn keyword gnuplotTodo contained TODO FIXME XXX BUG NOTE HACK
 
 " Strings -------------------------------------------------------------------
-" Double quotes interpret backslash escapes; single quotes do not.
+" Double quotes interpret backslash escapes; single quotes do not. gnuplot
+" closes an unterminated string at the end of the line unless a trailing
+" backslash continues it.
 syn match   gnuplotEscape contained "\\\%([\\abfnrtv"']\|[0-7]\{1,3}\|x\x\{1,2}\|u\x\{4}\|U\x\{8}\)"
 syn match   gnuplotFormat  contained "%[-+ #0]*\d*\%(\.\d\+\)\?[hlLqjzt]*[diouxXeEfgGcsSpP%]"
-syn region  gnuplotString  start=+"+ skip=+\\.+ end=+"+ contains=gnuplotEscape,gnuplotFormat,@Spell
-syn region  gnuplotString  start=+'+ end=+'+ contains=gnuplotFormat,@Spell
+syn region  gnuplotString  start=+"+ skip=+\\.+ end=+"\|\\\@<!$+ contains=gnuplotEscape,gnuplotFormat,@Spell
+syn region  gnuplotString  start=+'+ end=+'\|\\\@<!$+ contains=gnuplotFormat,@Spell
 
 " Datablocks ----------------------------------------------------------------
 " `$data << EOD ... EOD` — the terminator is user-chosen, so match the whole
