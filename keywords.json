@@ -1112,7 +1112,7 @@
 		{
 			"kw": "every",
 			"tier": "attr",
-			"min": 5
+			"min": 2
 		},
 		{
 			"kw": "if",
