@@ -106,6 +106,8 @@ call s:Word('set key at beginning', 'beginning', 'gnuplotValue')
 " function, which is why the command is a match with a lookahead guard.
 call s:Word('system "ls"', 'system', 'gnuplotCommand')
 call s:Word('a = system("ls")', 'system', 'gnuplotBuiltinFunction')
+call s:Word('print system ("ls")', 'system', 'gnuplotBuiltinFunction')
+call s:Word('system cmd', 'system', 'gnuplotCommand')
 " Typographic unit suffixes fold into the number, longest spelling first.
 call s:Word('set size 1inch, 2mm', '1inch', 'gnuplotNumber')
 

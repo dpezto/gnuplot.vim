@@ -128,6 +128,9 @@ function build() {
     }
   }
 
+  // system has a guarded command match so calls retain their function group.
+  chosen.delete("system");
+
   const buckets = new Map();
   const add = (group, text) => {
     if (!buckets.has(group)) buckets.set(group, new Set());

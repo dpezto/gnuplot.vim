@@ -10,7 +10,7 @@
 Syntax highlighting for [gnuplot](http://www.gnuplot.info) 6 scripts that
 matches the colours of the
 [tree-sitter-gnuplot](https://github.com/dpezto/tree-sitter-gnuplot) grammar.
-Both projects generate their keyword lists from the same 794-word dictionary,
+Both projects generate their keyword lists from the same dictionary,
 and under Neovim every syntax group links to the treesitter capture the
 grammar's own queries use, so a buffer highlighted by this plugin and one
 highlighted by the grammar take identical colours from your colorscheme.
