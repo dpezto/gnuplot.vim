@@ -1376,6 +1376,11 @@
 			"min": 5
 		},
 		{
+			"kw": "system",
+			"tier": "cmd",
+			"min": 6
+		},
+		{
 			"kw": "test",
 			"tier": "cmd",
 			"min": 4
