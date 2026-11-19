@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/dpezto/gnuplot.vim/compare/v1.1.2...v1.1.3) (2026-11-19)
+
+
+### Bug Fixes
+
+* **syntax:** preserve system calls when syncing keywords ([dc3706f](https://github.com/dpezto/gnuplot.vim/commit/dc3706fd1ee3a79e3dbaa4346cfa551abcbd2cff))
+
 ## [1.1.2](https://github.com/dpezto/gnuplot.vim/compare/v1.1.1...v1.1.2) (2026-10-14)
 
 
